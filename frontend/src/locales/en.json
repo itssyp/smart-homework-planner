@@ -1,0 +1,124 @@
+{
+    "settings": "Settings",
+    "signout": "Sign Out",
+    "login": "Log In",
+    "signup": "Sign Up",
+    "username": "Username",
+    "password": "Password",
+    "loggingIn": "Logging in...",
+    "usernameIsRequired": "Username is required",
+    "passwordIsRequired": "Password is required",
+    "invalidUsernameOrPassword": "Invalid username or password",
+    "pleaseConfirmYourPassword": "Please confirm your password",
+    "confirmPassword": "Confirm Password",
+    "passwordMustBeAtLeast6Characters": "Password must be at least 6 characters long",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "events": {
+        "allEvents": "All Events",
+        "newEvent": "New Event",
+        "details": "Details",
+        "name": "Smart Homework Planner",
+        "edit": "Edit Event",
+        "delete": "Delete Event",
+        "address": "Address",
+        "date": "Date",
+        "location": "location",
+        "time": "From - To",
+        "formName": "Event Name", 
+        "category": "Category",
+        "description": "Description",
+        "isFavorite": "Favorite",
+        "noEventsFound": "No events found",
+        "resetFilter": "Reset Filter"
+    },
+    "categories": {
+        "noDescription": "No description provided",
+        "categories": "Categories",
+        "allCategories": "All Categories",
+        "newCategory": "New Category",
+        "editCategory": "Edit Category",
+        "loading": "Loading...",
+        "error": "Error:",
+        "details": "Details",
+        "name": "category name",
+        "description": "category description"
+    },
+    "theme": {
+        "settings": "Theme Settings",
+        "description": "Choose your preferred theme appearance",
+        "light": "Light",
+        "dark": "Dark",
+        "classic": "Classic"
+    },
+    "language": {
+        "settings": "Language Settings",
+        "description": "Select your preferred language",
+        "en": "English",
+        "hu": "Hungarian",
+        "ro": "Romanian"
+    },
+    "profile": {
+        "settings": "Profile Settings",
+        "description": "Manage your profile information",
+        "edit": "Edit Profile",
+        "updateUsername": "Update Username",
+        "username": "Username",
+        "deleteAccount": "Delete Account",
+        "deleting": "Deleting...",
+        "confirmDeleteMessage": "Are you sure you want to delete your account?",
+        "confirmDeleteTitle": "Delete"
+    },
+    "signUp": {
+        "error": "Error during registration",
+        "loading": "Registering...",
+        "success": "Registration successful! Please log in.",
+        "userExists": "Username already exists"
+    },
+    "signOut": {
+        "error": "Error logging out"
+    },
+    "form": {
+        "submit": "Submit",
+        "update": "Update"
+    },
+    "admin": {
+        "adminPage": "Admin Panel",
+        "userManagement": "User Management",
+        "confirmDeleteUser": "Are you sure you want to delete this user?",
+        "confirmDeleteTitle": "Delete User",
+        "role": "Role",
+        "actions": "Actions"
+    },
+    "loading": "Loading...",
+    "error": "Error:",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "toastr": {
+        "userDeletedSuccess": "User deleted successfully",
+        "userDeletedError": "Error deleting user",
+        "userUpdatedSuccess": "User updated successfully",
+        "userUpdatedError": "Error updating user",
+        "usernameUpdatedSuccess": "Username updated successfully",
+        "usernameUpdatedError": "Error updating username",
+        "eventDeletedSuccess": "Event deleted successfully",
+        "eventDeletedError": "Error deleting event",
+        "eventUpdatedSuccess": "Event updated successfully",
+        "eventUpdatedError": "Error updating event",
+        "categoryDeletedSuccess": "Category deleted successfully",
+        "categoryDeletedError": "Error deleting category",
+        "categoryUpdatedSuccess": "Category updated successfully",
+        "unexpectedError": "An unexpected error occurred",
+        "failedToSubmitTheForm": "Failed to submit the form",
+        "eventCreatedSuccess": "Event created successfully",
+        "eventCreatedError": "Error creating event",
+        "categoryCreatedSuccess": "Category created successfully",
+        "categoryCreatedError": "Error creating category"
+    },
+    "home": {
+        "welcome": "Welcome to Our Event Planner Platform",
+        "description": "Plan your events with ease. Discover and manage events effortlessly.",
+        "getStarted": "Get Started",
+        "home": "Home"
+    }
+}
