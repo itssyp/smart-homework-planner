@@ -1,8 +1,4 @@
-/**
- * Mock API — swap implementations here when the backend is ready.
- * Persistence: localStorage (see plannerStorage.ts).
- */
-
+import { BACKEND_URL } from '../configuration/config';
 import type {
   CreateSubjectInput,
   CreateTaskInput,
@@ -11,122 +7,43 @@ import type {
   Task,
   UpdateTaskInput,
 } from '../types/planner.types';
-import { generateDailyPlan } from '../planner/generateDailyPlan';
-import { dayjs } from '../utils/dayjsSetup';
-import { seedPlannerDemoData } from './mockSeed';
-import {
-  getOrCreateMockUserId,
-  readSubjects,
-  readTasks,
-  writeSubjects,
-  writeTasks,
-} from './plannerStorage';
-
-const delayMs = 180;
-
-function delay<T>(value: T): Promise<T> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(value), delayMs);
-  });
-}
-
-function ensureReady(): void {
-  seedPlannerDemoData();
-}
-
-function planIdFor(userId: string, planDate: string): string {
-  return `plan-${userId}-${planDate}`;
-}
+import axiosConfig from '../api/api.config';
 
 export async function getTasks(): Promise<Task[]> {
-  ensureReady();
-  const userId = getOrCreateMockUserId();
-  const tasks = readTasks().filter((t) => t.user_id === userId);
-  return delay(tasks);
+  const response = await axiosConfig.get<Task[]>(`${BACKEND_URL}/tasks`);
+  return response.data;
 }
 
 export async function createTask(input: CreateTaskInput): Promise<Task> {
-  ensureReady();
-  const userId = getOrCreateMockUserId();
-  const tasks = readTasks();
-  const now = dayjs().toISOString();
-  const task: Task = {
-    id: crypto.randomUUID(),
-    user_id: userId,
-    subject_id: input.subject_id,
-    title: input.title,
-    description: input.description,
-    deadline: input.deadline,
-    priority: input.priority,
-    estimated_time_minutes: input.estimated_time_minutes,
-    status: 'not_started',
-    created_at: now,
-  };
-  writeTasks([task, ...tasks]);
-  return delay(task);
+  const response = await axiosConfig.post<Task>(`${BACKEND_URL}/tasks`, input);
+  return response.data;
 }
 
 export async function updateTask(id: string, patch: UpdateTaskInput): Promise<Task> {
-  ensureReady();
-  const tasks = readTasks();
-  const idx = tasks.findIndex((t) => t.id === id);
-  if (idx === -1) {
-    throw new Error('Task not found');
-  }
-  const updated: Task = { ...tasks[idx], ...patch };
-  const next = [...tasks];
-  next[idx] = updated;
-  writeTasks(next);
-  return delay(updated);
+  const response = await axiosConfig.patch<Task>(`${BACKEND_URL}/tasks/${id}`, patch);
+  return response.data;
 }
 
 export async function getSubjects(): Promise<Subject[]> {
-  ensureReady();
-  return delay(readSubjects());
+  const response = await axiosConfig.get<Subject[]>(`${BACKEND_URL}/subjects`);
+  return response.data;
 }
 
 export async function getSubject(id: string): Promise<Subject> {
-  ensureReady();
-  const subject = readSubjects().find((s) => s.id === id);
-  if (!subject) {
-    throw new Error('Subject not found');
-  }
-  return delay(subject);
+  const response = await axiosConfig.get<Subject>(`${BACKEND_URL}/subjects/${id}`);
+  return response.data;
 }
 
 export async function createSubject(input: CreateSubjectInput): Promise<Subject> {
-  ensureReady();
-  const subjects = readSubjects();
-  const subject: Subject = {
-    id: crypto.randomUUID(),
-    name: input.name.trim(),
-    difficulty_level: input.difficulty_level,
-    color: input.color?.trim() || '#6C5DD3',
-    icon_name: input.icon_name?.trim() || 'School',
-  };
-  if (!subject.name) {
-    throw new Error('Subject name is required');
-  }
-  writeSubjects([subject, ...subjects]);
-  return delay(subject);
+  const response = await axiosConfig.post<Subject>(`${BACKEND_URL}/subjects`, input);
+  return response.data;
 }
 
-/** Today’s plan + generated sessions (deterministic per date). */
 export async function getStudyPlan(planDate: string): Promise<StudyPlanBundle> {
-  ensureReady();
-  const userId = getOrCreateMockUserId();
-  const tasks = readTasks().filter((t) => t.user_id === userId);
-  const planId = planIdFor(userId, planDate);
-  const plan = {
-    id: planId,
-    user_id: userId,
-    plan_date: planDate,
-  };
-  const sessions = generateDailyPlan(tasks, planId, planDate);
-  return delay({ plan, sessions });
+  const response = await axiosConfig.get<StudyPlanBundle>(`${BACKEND_URL}/study-plans/${planDate}`);
+  return response.data;
 }
 
-/** Future: replace exports with HTTP client using same signatures. */
 export const plannerApi = {
   getTasks,
   createTask,
