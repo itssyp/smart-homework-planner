@@ -16,6 +16,7 @@ jobs:
         id: inference
         uses: actions/ai-inference@v1
         with:
+          model: openai/gpt-4.1
           prompt: |
             Summarize this commit in one short paragraph.
 
