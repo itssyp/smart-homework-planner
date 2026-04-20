@@ -1,0 +1,174 @@
+{
+  "app": {
+    "name": "Smart Homework Planner"
+  },
+  "auth": {
+    "login": "Log In",
+    "signup": "Sign Up",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "loggingIn": "Logging in...",
+    "invalidCredentials": "Invalid username or password",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "pleaseConfirmPassword": "Please confirm your password",
+    "passwordMinLength": "Password must be at least 6 characters long",
+    "passwordsMismatch": "Passwords do not match",
+    "registerError": "Error during registration",
+    "registering": "Registering...",
+    "genericError": "An error occurred. Please try again.",
+    "devHint": "No backend? Use {{user}} / {{pass}} to sign in locally.",
+    "toast": {
+      "loginFailed": "Login failed. Please check your credentials and try again.",
+      "registerSuccess": "Registration successful. Please log in.",
+      "registerFailed": "Registration failed. Please try again.",
+      "userExists": "User already exists",
+      "logoutFailed": "Sign out failed. Please try again."
+    }
+  },
+  "menu": {
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "user": {
+    "deleteSuccess": "User deleted successfully.",
+    "deleteError": "Failed to delete user. Please try again."
+  },
+  "errorPage": {
+    "code": "404",
+    "title": "Page not found",
+    "message": "We're sorry, the page you requested could not be found. Please go back to the homepage.",
+    "goHome": "Go home"
+  },
+  "layout": {
+    "openDrawer": "Open menu",
+    "toggleThemeLight": "Light mode",
+    "toggleThemeDark": "Dark mode"
+  },
+  "planner": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "tasks": "Tasks",
+      "subjects": "Subjects",
+      "studyPlan": "Study plan"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "create": "Create",
+      "saving": "Saving…",
+      "creating": "Creating…",
+      "minutes": "min",
+      "session": "Session"
+    },
+    "dashboard": {
+      "eyebrow": "Student dashboard",
+      "tagline": "Here's what deserves your attention today — keep it calm and focused.",
+      "guestName": "there",
+      "greetingMorning": "Good morning",
+      "greetingAfternoon": "Good afternoon",
+      "greetingEvening": "Good evening",
+      "newTask": "New task",
+      "startSession": "Start session",
+      "statOpenTasks": "Open tasks",
+      "statOpenTasksHint": "Not completed yet",
+      "statDueWeek": "Due within 7 days",
+      "statDueWeekHint": "Includes overdue",
+      "statPlanBlocks": "Plan blocks today",
+      "statPlanBlocksHint": "Auto-generated",
+      "studyPlanTitle": "Today's study plan",
+      "studyPlanSubtitle": "Sorted by deadline and priority, chunked into focused sessions (mock).",
+      "noSessionsTitle": "No sessions scheduled",
+      "noSessionsDescription": "Add open tasks with estimates to build your day.",
+      "createTask": "Create task",
+      "urgentTitle": "Urgent & high priority",
+      "nothingUrgentTitle": "Nothing urgent right now",
+      "nothingUrgentDescription": "High-impact work will surface here.",
+      "todayFocus": "Today focus",
+      "caughtUp": "You're caught up — add a task or take a break."
+    },
+    "tasks": {
+      "eyebrow": "Tasks",
+      "title": "Assignments & study work",
+      "subtitle": "Filter by status and priority. Sorted by closest deadline.",
+      "newTask": "New task",
+      "filterStatus": "Status",
+      "filterPriority": "Priority",
+      "statusAll": "All",
+      "statusNotStarted": "Not started",
+      "statusInProgress": "In progress",
+      "statusDone": "Done",
+      "priorityAll": "All",
+      "priorityLow": "Low",
+      "priorityMedium": "Medium",
+      "priorityHigh": "High",
+      "emptyTitle": "No tasks yet",
+      "emptyDescription": "Create your first task to see it here with urgency cues.",
+      "createTask": "Create task"
+    },
+    "subjects": {
+      "eyebrow": "Courses",
+      "title": "Subjects",
+      "subtitle": "Color-coded for quick scanning — open a course for details and related tasks.",
+      "newSubject": "New subject",
+      "difficulty": "Difficulty: {{level}}/5"
+    },
+    "subjectDetail": {
+      "back": "Back to subjects",
+      "notFoundTitle": "Subject not found",
+      "notFoundDescription": "It may have been removed or the link is invalid.",
+      "eyebrow": "Subject",
+      "difficulty": "Difficulty: {{level}}/5",
+      "colorLabel": "Color {{color}}",
+      "tasksTitle": "Tasks in this subject",
+      "emptyTitle": "No tasks yet",
+      "emptyDescription": "Create a task and assign this subject to see it here.",
+      "goToTasks": "Go to tasks"
+    },
+    "studyPlan": {
+      "eyebrow": "Schedule",
+      "title": "Study plan",
+      "subtitle": "Full-day timeline · {{date}}",
+      "emptyTitle": "No blocks yet",
+      "emptyDescription": "Tasks with estimates generate time blocks automatically."
+    },
+    "analytics": {
+      "eyebrow": "Workload",
+      "title": "Time by subject",
+      "subtitle": "Estimated minutes left on open tasks (mock analytics).",
+      "noSubject": "No subject",
+      "fallbackName": "Subject"
+    },
+    "taskModal": {
+      "title": "New task",
+      "fieldTitle": "Title",
+      "fieldDescription": "Description",
+      "fieldDeadline": "Deadline",
+      "fieldPriority": "Priority",
+      "fieldEstimatedTime": "Estimated time (minutes)",
+      "fieldSubject": "Subject",
+      "subjectNone": "None"
+    },
+    "subjectModal": {
+      "title": "New subject",
+      "fieldName": "Name",
+      "fieldDifficulty": "Difficulty (1–5)",
+      "fieldIcon": "Icon",
+      "fieldColor": "Color",
+      "fieldHex": "Hex",
+      "colorAria": "Color {{color}}"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "taskCard": {
+      "markCompleteAria": "Mark complete"
+    },
+    "deadline": {
+      "overdue": "Overdue",
+      "dueRelative": "Due {{relative}}"
+    }
+  }
+}
