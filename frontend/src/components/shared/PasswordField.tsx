@@ -31,7 +31,7 @@ export function PasswordField<T extends { password?: string; rePassword?: string
           <TextField
             {...field}
             type="password"
-            label={label || t(name === 'rePassword' ? 'confirmPassword' : 'password')}
+            label={label || t(name === 'rePassword' ? 'auth.confirmPassword' : 'auth.password')}
             error={!!fieldError}
             helperText={fieldError?.message}
             fullWidth

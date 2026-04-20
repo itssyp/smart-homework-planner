@@ -29,7 +29,7 @@ function Signup() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <Typography variant="h4" gutterBottom>
-        {t('signup')}
+        {t('auth.signup')}
       </Typography>
 
       <SignupForm

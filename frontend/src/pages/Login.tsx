@@ -25,7 +25,7 @@ function Login() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <Typography variant="h4" gutterBottom>
-        {t('login')}
+        {t('auth.login')}
       </Typography>
 
       <LoginForm
@@ -36,6 +36,11 @@ function Login() {
         error={error}
         validationRules={loginValidationRules}
       />
+      {import.meta.env.DEV && (
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 2, maxWidth: 320, textAlign: 'center' }}>
+          {t('auth.devHint', { user: 'admin', pass: 'admin' })}
+        </Typography>
+      )}
     </Box>
   );
 }

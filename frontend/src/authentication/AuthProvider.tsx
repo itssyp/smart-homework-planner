@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import i18next from "i18next";
 import type { UserDataIncoming } from "../types/user.incoming.type";
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,7 @@ import { useLogin, useLogout } from "../query/auth.query";
 import { useDeleteUser } from "../query/user.query";
 import type { AuthState } from "./AuthState";
 import { AuthContext } from "./AuthContext";
+import type { AppTheme } from "../context/ThemeContext";
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -34,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem('theme', data.theme);
 
             // Update theme and language contexts
-            updateThemeFromAuth(data.theme as 'light' | 'dark' | 'classic');
+            updateThemeFromAuth(data.theme as AppTheme);
 
             // Navigate to home page
             navigate('/');
@@ -107,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout: handleLogout,
         deleteAccount: handleDeleteAccount, // Pass deleteAccount with userId
         isLoading: loginMutation.isPending || logoutMutation.isPending || deleteAccountMutation.isPending,
-        error: loginMutation.error || logoutMutation.error || deleteAccountMutation.error ? 'An error occurred. Please try again.' : null,
+        error: loginMutation.error || logoutMutation.error || deleteAccountMutation.error ? i18next.t('auth.genericError') : null,
     };
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

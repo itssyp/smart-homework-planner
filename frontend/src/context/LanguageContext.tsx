@@ -1,9 +1,9 @@
 import { createContext } from 'react';
 
 type LanguageContextType = {
-  language: 'en' | 'hu' | 'ro';
-  setLanguage: (language: 'en' | 'hu' | 'ro') => void;
-  updateLanguageFromAuth: (newLanguage: 'en' | 'hu' | 'ro') => void;
+  language: 'en';
+  setLanguage: (language: 'en') => void;
+  updateLanguageFromAuth: (newLanguage: 'en') => void;
 };
 
 export const LanguageContext = createContext<LanguageContextType>({

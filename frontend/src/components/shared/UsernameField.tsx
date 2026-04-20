@@ -21,7 +21,7 @@ export function UsernameField<T extends { username: string }>({ control, validat
         render={({ field, fieldState: { error: fieldError } }) => (
           <TextField
             {...field}
-            label={t('username')}
+            label={t('auth.username')}
             error={!!fieldError}
             helperText={fieldError?.message}
             fullWidth

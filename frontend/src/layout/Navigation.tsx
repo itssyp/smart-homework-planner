@@ -6,14 +6,16 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { Button, Avatar } from '@mui/material';
+import { Button, Avatar, IconButton, Tooltip } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
+import { useThemeContext } from '../hooks/useThemeContext';
 import { AppBar, DrawerHeader, DrawerList, drawerWidth } from './NavigationHelper';
 import NavigationMenuItem from './NavigationMenuItem';
 import { AuthContext } from '../authentication/AuthContext';
@@ -24,6 +26,7 @@ interface Props {
 
 function Navigation({ children }: Props) {
   const theme = useTheme();
+  const { theme: themeName, setTheme } = useThemeContext();
   const { auth, logout } = useContext(AuthContext);
   const [open, setOpen] = useState<boolean>(() => {
     const savedDrawerState = localStorage.getItem('drawerOpen');
@@ -63,7 +66,7 @@ function Navigation({ children }: Props) {
           {auth.username && (
             <IconButton
               color="inherit"
-              aria-label="open drawer"
+              aria-label={t('layout.openDrawer')}
               onClick={handleDrawerOpen}
               edge="start"
               sx={{
@@ -74,22 +77,38 @@ function Navigation({ children }: Props) {
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" noWrap component="div">
-            {t('events.name')}
+          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+            {t('app.name')}
           </Typography>
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
             {auth.username ? (
               <>
+                <Tooltip title={themeName === 'dark' ? t('layout.toggleThemeLight') : t('layout.toggleThemeDark')}>
+                  <IconButton
+                    color="inherit"
+                    onClick={() => setTheme(themeName === 'dark' ? 'light' : 'dark')}
+                    aria-label={themeName === 'dark' ? t('layout.toggleThemeLight') : t('layout.toggleThemeDark')}
+                  >
+                    {themeName === 'dark' ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
+                  </IconButton>
+                </Tooltip>
                 <IconButton onClick={handleMenuOpen} sx={{ p: 0.5 }}>
                   <Avatar
-                    alt={auth.username}
-                    src="/path-to-avatar.jpg"
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      border: '2px solid #fff',
-                    }}
-                  />
+                    alt={auth.username ?? ''}
+                    src={undefined}
+                    sx={(theme) => ({
+                      width: 42,
+                      height: 42,
+                      fontWeight: 800,
+                      fontSize: '1rem',
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                      color: theme.palette.primary.contrastText,
+                      border: `2px solid ${theme.palette.background.paper}`,
+                      boxShadow: '0 4px 14px rgba(108, 93, 211, 0.35)',
+                    })}
+                  >
+                    {auth.username?.charAt(0).toUpperCase() ?? '?'}
+                  </Avatar>
                 </IconButton>
                 <NavigationMenuItem
                   username={auth.username}
@@ -101,13 +120,13 @@ function Navigation({ children }: Props) {
             ) : (
               <>
                 <Link to="/login" style={{ textDecoration: 'none' }}>
-                  <Button variant="text" color="inherit">
-                    {t('login')}
+                  <Button variant="text" color="primary">
+                    {t('auth.login')}
                   </Button>
                 </Link>
                 <Link to="/signup" style={{ textDecoration: 'none' }}>
-                  <Button variant="outlined" color="inherit">
-                    {t('signup')}
+                  <Button variant="contained" color="primary">
+                    {t('auth.signup')}
                   </Button>
                 </Link>
               </>
@@ -140,7 +159,7 @@ function Navigation({ children }: Props) {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3, md: 4 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: open ? `${drawerWidth}px` : 0 },
           transition: theme.transitions.create(['margin', 'width'], {

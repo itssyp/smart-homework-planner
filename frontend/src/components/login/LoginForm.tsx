@@ -26,12 +26,12 @@ export function LoginForm({ control, handleSubmit, onSubmit, isPending, error, v
 
       {error && (
         <Typography variant="body2" color="error" gutterBottom>
-          {t('invalidUsernameOrPassword')}
+          {t('auth.invalidCredentials')}
         </Typography>
       )}
 
       <Button type="submit" variant="contained" color="primary" fullWidth disabled={isPending} sx={{ mt: 2 }}>
-        {isPending ? t('loggingIn') : t('login')}
+        {isPending ? t('auth.loggingIn') : t('auth.login')}
       </Button>
     </Box>
   );

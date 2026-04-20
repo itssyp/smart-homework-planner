@@ -40,7 +40,19 @@ function NavigationMenuItem({ username, anchorEl, handleMenuClose, handleLogout 
           alignItems: 'center',
         }}
       >
-        <Avatar alt={username} src="/path-to-avatar.jpg" sx={{ width: 50, height: 50, mb: 1 }} />
+        <Avatar
+          alt={username}
+          sx={(theme) => ({
+            width: 52,
+            height: 52,
+            mb: 1,
+            fontWeight: 800,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            color: theme.palette.primary.contrastText,
+          })}
+        >
+          {username.charAt(0).toUpperCase()}
+        </Avatar>
         <Typography
           variant="subtitle1"
           sx={{
@@ -64,7 +76,7 @@ function NavigationMenuItem({ username, anchorEl, handleMenuClose, handleLogout 
         }}
       >
         <SettingsIcon fontSize="small" />
-        {t('settings')}
+        {t('menu.settings')}
       </MenuItem>
       <MenuItem
         onClick={handleLogout}
@@ -77,7 +89,7 @@ function NavigationMenuItem({ username, anchorEl, handleMenuClose, handleLogout 
         }}
       >
         <LogoutIcon fontSize="small" />
-        {t('signout')}
+        {t('menu.signOut')}
       </MenuItem>
     </Menu>
   );

@@ -1,16 +1,17 @@
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, styled } from '@mui/material';
-import { Link } from 'react-router-dom';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import QueueOutlinedIcon from '@mui/icons-material/QueueOutlined';
-import ClassOutlinedIcon from '@mui/icons-material/ClassOutlined';
-import AddIcon from '@mui/icons-material/Add';
+import type { ReactNode } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import MuiAppBar, { type AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { useTranslation } from 'react-i18next';
 import { useContext } from 'react';
-import HomeIcon from '@mui/icons-material/Home';
+import { alpha, useTheme } from '@mui/material/styles';
+import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
+import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import ViewDayOutlinedIcon from '@mui/icons-material/ViewDayOutlined';
 import { AuthContext } from '../authentication/AuthContext';
 
-export const drawerWidth = 240;
+export const drawerWidth = 260;
 
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -19,31 +20,68 @@ interface AppBarProps extends MuiAppBarProps {
 export function DrawerList() {
   const { t } = useTranslation();
   const { auth } = useContext(AuthContext);
+  const theme = useTheme();
+  const location = useLocation();
 
-  const menuItems = [];
+  const menuItems: { text: string; icon: ReactNode; path: string }[] = [];
 
   if (auth.username) {
     menuItems.push(
-      { text: t('home.home'), icon: <HomeIcon />, path: '/' },
-      { text: t('events.allEvents'), icon: <CalendarMonthIcon />, path: '/events' },
-      { text: t('categories.allCategories'), icon: <ClassOutlinedIcon />, path: '/categories' },
-      { text: t('events.newEvent'), icon: <QueueOutlinedIcon />, path: '/addOrEditEvent' },
-      { text: t('categories.newCategory'), icon: <AddIcon />, path: '/addOrEditCategory' },
+      { text: t('planner.nav.dashboard'), icon: <DashboardRoundedIcon />, path: '/' },
+      { text: t('planner.nav.tasks'), icon: <AssignmentTurnedInOutlinedIcon />, path: '/tasks' },
+      { text: t('planner.nav.subjects'), icon: <MenuBookOutlinedIcon />, path: '/subjects' },
+      { text: t('planner.nav.studyPlan'), icon: <ViewDayOutlinedIcon />, path: '/study-plan' },
     );
-
-  
   }
 
+  const pathActive = (path: string) =>
+    path === '/' ? location.pathname === '/' : location.pathname === path;
+
   return (
-    <List>
-      {menuItems.map((item) => (
-        <ListItem key={item.text} disablePadding>
-          <ListItemButton component={Link} to={item.path}>
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItemButton>
-        </ListItem>
-      ))}
+    <List sx={{ px: 1, pt: 1 }}>
+      {menuItems.map((item) => {
+        const active = pathActive(item.path);
+        return (
+          <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+            <ListItemButton
+              component={Link}
+              to={item.path}
+              selected={active}
+              sx={{
+                borderRadius: 2,
+                py: 1.25,
+                '&.Mui-selected': {
+                  bgcolor: alpha(theme.palette.primary.main, 0.12),
+                  color: theme.palette.primary.main,
+                  '&:hover': {
+                    bgcolor: alpha(theme.palette.primary.main, 0.18),
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: theme.palette.primary.main,
+                  },
+                },
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 40,
+                  color: active ? 'primary.main' : 'text.secondary',
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                slotProps={{
+                  primary: {
+                    sx: { fontWeight: active ? 700 : 500, fontSize: '0.9375rem' },
+                  },
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        );
+      })}
     </List>
   );
 }

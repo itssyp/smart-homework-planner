@@ -1,35 +1,36 @@
-import { Button } from '@mui/material';
-
-function NotFoundMessage() {
-  return (
-    <>
-      <h1 className="text-6xl font-extrabold">404</h1>
-      <p className="text-xl font-semibold">Page Not Found!</p>
-      <p className="text-gray-600">
-        We&apos;re sorry, the page you requested could not be found. Please go back to the homepage!
-      </p>
-    </>
-  );
-}
-
-function navigateHome() {
-  window.location.href = '/';
-}
+import { Box, Button, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 function ErrorPage() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-800">
-      <div className="flex flex-col items-center text-center space-y-6">
-        <NotFoundMessage />
+  const { t } = useTranslation();
 
-        <Button
-          className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition duration-200"
-          onClick={navigateHome}
-        >
-          GO HOME
-        </Button>
-      </div>
-    </div>
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        color: 'text.primary',
+        px: 2,
+      }}
+    >
+      <Typography variant="h2" sx={{ fontWeight: 800, letterSpacing: '-0.03em' }}>
+        {t('errorPage.code')}
+      </Typography>
+      <Typography variant="h5" sx={{ mt: 2, fontWeight: 700 }}>
+        {t('errorPage.title')}
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mt: 1, maxWidth: 420, textAlign: 'center' }}>
+        {t('errorPage.message')}
+      </Typography>
+      <Button component={Link} to="/" variant="contained" color="primary" sx={{ mt: 4 }}>
+        {t('errorPage.goHome')}
+      </Button>
+    </Box>
   );
 }
 

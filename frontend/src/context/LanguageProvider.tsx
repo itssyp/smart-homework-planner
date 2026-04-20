@@ -4,7 +4,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-const loadLanguageResources = (language: 'en' | 'hu' | 'ro') => {
+const loadLanguageResources = (language: 'en') => {
   switch (language) {
     default:
       return import('../locales/en.json');
@@ -27,12 +27,12 @@ i18n
 
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<'en' | 'hu' | 'ro'>(() => {
+  const [language, setLanguage] = useState<'en'>(() => {
     const savedLanguage = localStorage.getItem('language');
-    return (savedLanguage as 'en' | 'hu' | 'ro') || 'en';
+    return (savedLanguage as 'en') || 'en';
   });
 
-  const updateLanguageFromAuth = useCallback((newLanguage: 'en' | 'hu' | 'ro') => {
+  const updateLanguageFromAuth = useCallback((newLanguage: 'en') => {
     setLanguage(newLanguage);
   }, []);
 

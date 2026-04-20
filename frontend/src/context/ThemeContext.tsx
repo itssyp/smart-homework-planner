@@ -1,9 +1,11 @@
 import { createContext } from 'react';
 
+export type AppTheme = 'light' | 'dark';
+
 type ThemeContextType = {
-  theme: 'light' | 'dark' | 'classic';
-  setTheme: (theme: 'light' | 'dark' | 'classic') => void;
-  updateThemeFromAuth: (newTheme: 'light' | 'dark' | 'classic') => void;
+  theme: AppTheme;
+  setTheme: (theme: AppTheme) => void;
+  updateThemeFromAuth: (newTheme: AppTheme) => void;
 };
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

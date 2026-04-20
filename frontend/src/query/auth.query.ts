@@ -2,8 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router';
 import { AxiosError } from 'axios';
+import i18next from 'i18next';
 import { login, logout, register } from '../api/auth.api';
 import { useThemeContext } from '../hooks/useThemeContext';
+import type { AppTheme } from '../context/ThemeContext';
 
 export function useLogin() {
   const queryClient = useQueryClient();
@@ -16,18 +18,16 @@ export function useLogin() {
       queryClient.setQueryData(['user'], data);
       const { username, role, theme } = data;
 
-      // Update localStorage with user data
       localStorage.setItem('username', username);
       localStorage.setItem('role', role);
 
-      // Update theme and language contexts with server values
-      updateThemeFromAuth(theme as 'light' | 'dark' | 'classic');
+      updateThemeFromAuth(theme as AppTheme);
 
       navigate('/');
     },
     onError: (error: AxiosError) => {
       console.error('Error logging in:', error);
-      toast.error('Login failed. Please check your credentials and try again.');
+      toast.error(i18next.t('auth.toast.loginFailed'));
     },
   });
 }
@@ -38,7 +38,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: register,
     onSuccess: () => {
-      toast.success('Registration successful. Please log in.');
+      toast.success(i18next.t('auth.toast.registerSuccess'));
       navigate('/login');
     },
     onError: (error: AxiosError) => {
@@ -49,9 +49,9 @@ export function useRegister() {
       if (error.response?.data && typeof (error.response.data as ErrorResponse).message === 'string') {
         toast.error((error.response.data as ErrorResponse).message);
       } else if (error.response?.status === 409) {
-        toast.error('User already exists');
+        toast.error(i18next.t('auth.toast.userExists'));
       } else {
-        toast.error('Registration failed. Please try again.');
+        toast.error(i18next.t('auth.toast.registerFailed'));
       }
     },
   });
@@ -76,7 +76,7 @@ export function useLogout() {
     },
     onError: (error) => {
       console.error('Error logging out:', error);
-      toast.error('Sign out failed. Please try again.');
+      toast.error(i18next.t('auth.toast.logoutFailed'));
     },
   });
 }

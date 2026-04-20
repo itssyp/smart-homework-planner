@@ -33,12 +33,12 @@ export function SignupForm({ control, handleSubmit, onSubmit, isPending, error, 
 
       {error && (
         <Typography variant="body2" color="error" gutterBottom>
-          {t('signUp.error')}
+          {t('auth.registerError')}
         </Typography>
       )}
 
       <Button type="submit" variant="contained" color="primary" fullWidth disabled={isPending} sx={{ mt: 2 }}>
-        {isPending ? t('signUp.loading') : t('signup')}
+        {isPending ? t('auth.registering') : t('auth.signup')}
       </Button>
     </Box>
   );
