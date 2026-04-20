@@ -36,11 +36,6 @@ function Login() {
         error={error}
         validationRules={loginValidationRules}
       />
-      {import.meta.env.DEV && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 2, maxWidth: 320, textAlign: 'center' }}>
-          {t('auth.devHint', { user: 'admin', pass: 'admin' })}
-        </Typography>
-      )}
     </Box>
   );
 }

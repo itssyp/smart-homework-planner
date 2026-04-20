@@ -31,6 +31,7 @@ export interface StudyPlan {
 export interface StudySession {
   id: string;
   study_plan_id: string;
+  start_minute_of_day: number;
   planned_duration_minutes: number;
   status: TaskStatus;
 }
@@ -47,13 +48,36 @@ export interface StudyPlanBundle {
   sessions: StudySessionWithTask[];
 }
 
+export interface StudyAvailability {
+  id: string;
+  user_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+}
+
+export interface StudyAvailabilityInput {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+}
+
+export interface PlannerNotification {
+  id: string;
+  user_id: string;
+  task_id?: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface CreateTaskInput {
   title: string;
   description?: string;
   deadline?: string;
   priority: TaskPriority;
   estimated_time_minutes?: number;
-  subject_id?: string;
+  subject_id: string;
 }
 
 export interface UpdateTaskInput {

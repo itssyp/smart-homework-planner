@@ -1,5 +1,5 @@
-import { useContext, useMemo } from 'react';
-import { Box, Button, Card, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { useContext, useMemo, useState } from 'react';
+import { Alert, Box, Button, Card, CardContent, Chip, Stack, Typography } from '@mui/material';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import AddIcon from '@mui/icons-material/Add';
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined';
@@ -11,18 +11,26 @@ import { DashboardSkeleton } from '../components/planner/PlannerSkeletons';
 import { StatCard } from '../components/planner/StatCard';
 import { SubjectAnalyticsCard } from '../components/planner/SubjectAnalyticsCard';
 import { TaskCard } from '../components/planner/TaskCard';
-import { scheduleSessionsForDay } from '../planner/generateDailyPlan';
-import { useStudyPlanQuery, useSubjectsQuery, useTasksQuery, useUpdateTaskMutation } from '../query/planner.query';
+import { StudyAvailabilityModal } from '../components/planner/StudyAvailabilityModal';
+import {
+  useStudyAvailabilityQuery,
+  useStudyPlanQuery,
+  useSubjectsQuery,
+  useTasksQuery,
+  useUpdateTaskMutation,
+} from '../query/planner.query';
 import { dayjs } from '../utils/dayjsSetup';
 import { getDeadlineUrgency } from '../utils/deadlineUrgency';
 import { usePlannerUiStore } from '../store/plannerUiStore';
 import type { Task } from '../types/planner.types';
 import { AuthContext } from '../authentication/AuthContext';
+import { buildActiveSession, clearActiveStudySession, saveActiveStudySession } from '../services/studySession.runtime';
 
 function Dashboard() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { auth } = useContext(AuthContext);
+  const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const setCreateOpen = usePlannerUiStore((s) => s.setCreateTaskOpen);
   const today = dayjs().format('YYYY-MM-DD');
 
@@ -35,6 +43,7 @@ function Dashboard() {
 
   const tasksQuery = useTasksQuery();
   const subjectsQuery = useSubjectsQuery();
+  const availabilityQuery = useStudyAvailabilityQuery();
   const planQuery = useStudyPlanQuery(today);
   const updateTask = useUpdateTaskMutation();
 
@@ -43,29 +52,49 @@ function Dashboard() {
     [subjectsQuery.data],
   );
 
-  const tasks = tasksQuery.data ?? [];
+  const tasks = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data]);
+
+  const scheduled = useMemo(() => {
+    return planQuery.data?.sessions ?? [];
+  }, [planQuery.data?.sessions]);
+  const firstSchedulableSession = useMemo(
+    () => scheduled.find((session) => Boolean(session.task_id)),
+    [scheduled],
+  );
 
   const focusTask = useMemo(() => {
-    const open = tasks.filter((task) => task.status !== 'done');
-    const scored = [...open].sort((a, b) => {
-      const ua = getDeadlineUrgency(a.deadline);
-      const ub = getDeadlineUrgency(b.deadline);
-      const rank: Record<string, number> = {
-        overdue: 0,
-        urgent: 1,
-        soon: 2,
-        ok: 3,
-        none: 4,
-      };
-      if (rank[ua] !== rank[ub]) return rank[ua] - rank[ub];
-      if (a.priority !== b.priority) {
-        const p = { high: 0, medium: 1, low: 2 };
-        return p[a.priority] - p[b.priority];
-      }
-      return 0;
-    });
-    return scored[0];
-  }, [tasks]);
+    const firstScheduledTaskId = scheduled.find((session) => session.task_id)?.task_id;
+    if (!firstScheduledTaskId) return undefined;
+    return tasks.find((task) => task.id === firstScheduledTaskId && task.status !== 'done');
+  }, [scheduled, tasks]);
+
+  const dailyEndMinute = useMemo(() => {
+    const todayDay = (dayjs(today).day() + 6) % 7;
+    const windows = (availabilityQuery.data ?? []).filter((slot) => slot.day_of_week === todayDay);
+    if (!windows.length) return null;
+    const ends = windows
+      .map((slot) => {
+        const [hh, mm] = slot.end_time.split(':');
+        const hour = Number(hh);
+        const minute = Number(mm);
+        return Number.isNaN(hour) || Number.isNaN(minute) ? null : hour * 60 + minute;
+      })
+      .filter((v): v is number => v !== null);
+    if (!ends.length) return null;
+    return Math.max(...ends);
+  }, [availabilityQuery.data, today]);
+
+  const focusOverflowMessage = useMemo(() => {
+    const firstSession = scheduled.find((session) => session.task_id);
+    if (!firstSession || !focusTask || dailyEndMinute === null) return null;
+    const estimate = focusTask.estimated_time_minutes ?? firstSession.planned_duration_minutes;
+    const nowMinuteOfDay = dayjs().hour() * 60 + dayjs().minute();
+    const effectiveStartMinute = Math.max(firstSession.start_minute_of_day, nowMinuteOfDay);
+    const estimatedEndMinute = effectiveStartMinute + estimate;
+    if (estimatedEndMinute <= dailyEndMinute) return null;
+    const estimatedEndLabel = dayjs(`${today}T00:00:00`).add(estimatedEndMinute, 'minute').format('HH:mm');
+    return t('planner.session.exceedsDaily', { time: estimatedEndLabel });
+  }, [dailyEndMinute, focusTask, scheduled, t, today]);
 
   const urgentOrHigh = useMemo(() => {
     return tasks.filter((task) => {
@@ -74,11 +103,6 @@ function Dashboard() {
       return u === 'urgent' || u === 'overdue' || task.priority === 'high';
     });
   }, [tasks]);
-
-  const scheduled = useMemo(() => {
-    const sessions = planQuery.data?.sessions ?? [];
-    return scheduleSessionsForDay(sessions, 9);
-  }, [planQuery.data?.sessions]);
 
   const openCount = useMemo(
     () => tasks.filter((task) => task.status !== 'done').length,
@@ -99,21 +123,34 @@ function Dashboard() {
   };
 
   const handleStartSession = () => {
-    const first = scheduled[0];
+    const first = firstSchedulableSession;
+    if (!first?.task_id) {
+      clearActiveStudySession();
+      return;
+    }
     if (first?.task_id) {
+      const firstTask = tasks.find((x) => x.id === first.task_id);
+      const runtimeSession = buildActiveSession(first, firstTask);
+      if (runtimeSession) {
+        saveActiveStudySession(runtimeSession);
+      } else {
+        clearActiveStudySession();
+      }
       updateTask.mutate({
         id: first.task_id,
         patch: { status: 'in_progress' },
       });
     }
-    navigate('/study-plan');
+    navigate('/study-session');
   };
 
-  if (tasksQuery.isLoading || planQuery.isLoading) {
+  if (tasksQuery.isLoading) {
     return <DashboardSkeleton />;
   }
 
   const displayName = auth.username ?? t('planner.dashboard.guestName');
+  const actionButtonSx = { minHeight: 34, py: 0.5, px: 1.5 };
+  const hasAnalytics = Boolean(subjectsQuery.data && tasks.length > 0);
 
   return (
     <Box sx={{ maxWidth: 1160, mx: 'auto' }}>
@@ -141,21 +178,51 @@ function Dashboard() {
             {t('planner.dashboard.tagline')}
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: { xs: 'wrap', md: 'nowrap' },
+            gap: 1,
+            alignItems: 'center',
+            justifyContent: { md: 'flex-end' },
+          }}
+        >
           <Chip
             icon={<WbSunnyOutlinedIcon />}
             label={dayjs().format('dddd, MMM D')}
             variant="outlined"
             sx={{ fontWeight: 600, borderColor: 'divider', bgcolor: 'background.paper' }}
           />
-          <Button startIcon={<AddIcon />} variant="outlined" color="primary" onClick={() => setCreateOpen(true)}>
+          <Button
+            startIcon={<AddIcon />}
+            variant="outlined"
+            color="primary"
+            onClick={() => setCreateOpen(true)}
+            sx={actionButtonSx}
+          >
             {t('planner.dashboard.newTask')}
           </Button>
-          <Button variant="contained" color="primary" startIcon={<PlayArrowRoundedIcon />} onClick={handleStartSession}>
+          <Button variant="outlined" color="secondary" onClick={() => setAvailabilityOpen(true)} sx={actionButtonSx}>
+            {t('planner.dashboard.studyAvailability')}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PlayArrowRoundedIcon />}
+            onClick={handleStartSession}
+            sx={actionButtonSx}
+            disabled={!firstSchedulableSession}
+          >
             {t('planner.dashboard.startSession')}
           </Button>
         </Box>
       </Box>
+      {focusOverflowMessage && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {focusOverflowMessage}
+        </Alert>
+      )}
 
       <Box
         sx={{
@@ -177,7 +244,7 @@ function Dashboard() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) 360px' },
+          gridTemplateColumns: focusTask ? { xs: '1fr', lg: 'minmax(0, 1fr) 360px' } : '1fr',
           gap: 3,
           alignItems: 'start',
         }}
@@ -266,23 +333,25 @@ function Dashboard() {
               </Stack>
             )}
           </Box>
+
+          {hasAnalytics && <SubjectAnalyticsCard tasks={tasks} subjects={subjectsQuery.data!} />}
         </Stack>
 
-        <Stack spacing={3}>
-          <Card
-            elevation={0}
-            sx={{
-              background: (theme) =>
-                theme.palette.mode === 'dark'
-                  ? 'linear-gradient(160deg, rgba(157,139,247,0.15) 0%, rgba(23,25,35,1) 100%)'
-                  : 'linear-gradient(160deg, rgba(108,93,211,0.1) 0%, #FFFFFF 100%)',
-            }}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="overline" color="primary" sx={{ fontWeight: 800, letterSpacing: '0.12em' }}>
-                {t('planner.dashboard.todayFocus')}
-              </Typography>
-              {focusTask ? (
+        {focusTask && (
+          <Stack spacing={3}>
+            <Card
+              elevation={0}
+              sx={{
+                background: (theme) =>
+                  theme.palette.mode === 'dark'
+                    ? 'linear-gradient(160deg, rgba(157,139,247,0.15) 0%, rgba(23,25,35,1) 100%)'
+                    : 'linear-gradient(160deg, rgba(108,93,211,0.1) 0%, #FFFFFF 100%)',
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="overline" color="primary" sx={{ fontWeight: 800, letterSpacing: '0.12em' }}>
+                  {t('planner.dashboard.todayFocus')}
+                </Typography>
                 <Box sx={{ mt: 1 }}>
                   <TaskCard
                     task={focusTask}
@@ -291,21 +360,14 @@ function Dashboard() {
                     dense
                   />
                 </Box>
-              ) : (
-                <Typography color="text.secondary" sx={{ mt: 1.5 }}>
-                  {t('planner.dashboard.caughtUp')}
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-
-          {subjectsQuery.data && tasks.length > 0 && (
-            <SubjectAnalyticsCard tasks={tasks} subjects={subjectsQuery.data} />
-          )}
-        </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+        )}
       </Box>
 
       <CreateTaskModal />
+      <StudyAvailabilityModal open={availabilityOpen} onClose={() => setAvailabilityOpen(false)} />
     </Box>
   );
 }

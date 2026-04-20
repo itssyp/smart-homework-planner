@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, time
 from typing import Literal
 from uuid import UUID
 
@@ -79,7 +79,7 @@ class CreateTaskInput(BaseModel):
     deadline: datetime | None = None
     priority: TaskPriority = "medium"
     estimated_time_minutes: int | None = Field(default=None, ge=1, le=1440)
-    subject_id: UUID | None = None
+    subject_id: UUID
 
 
 class UpdateTaskInput(BaseModel):
@@ -101,6 +101,7 @@ class StudyPlanOut(BaseModel):
 class StudySessionOut(BaseModel):
     id: UUID
     study_plan_id: UUID
+    start_minute_of_day: int = Field(ge=0, le=1439)
     planned_duration_minutes: int
     status: TaskStatus
     task_id: UUID | None = None
@@ -109,3 +110,30 @@ class StudySessionOut(BaseModel):
 class StudyPlanBundleOut(BaseModel):
     plan: StudyPlanOut
     sessions: list[StudySessionOut]
+
+
+class StudyAvailabilityOut(BaseModel):
+    id: UUID
+    user_id: UUID
+    day_of_week: int = Field(ge=0, le=6)
+    start_time: time
+    end_time: time
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class StudyAvailabilityInput(BaseModel):
+    day_of_week: int = Field(ge=0, le=6)
+    start_time: str = Field(min_length=4, max_length=8)
+    end_time: str = Field(min_length=4, max_length=8)
+
+
+class NotificationOut(BaseModel):
+    id: UUID
+    user_id: UUID
+    task_id: UUID | None = None
+    message: str
+    is_read: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

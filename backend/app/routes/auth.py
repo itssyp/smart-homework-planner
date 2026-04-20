@@ -31,7 +31,8 @@ def login(payload: UserDataIncoming, response: Response, db: DbSession) -> UserD
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
 
-    ensure_user_preferences(user, payload.theme, payload.language)
+    # Keep previously saved preferences (e.g., dark mode set before logout) on login.
+    ensure_user_preferences(user)
     token = create_access_token(user.id)
     response.headers["Authorization"] = f"Bearer {token}"
     db.commit()

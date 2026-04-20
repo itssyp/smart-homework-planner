@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from .models import (
     SessionTask,
+    StudyAvailability,
     StudyPlan,
     StudySession,
     Subject,
@@ -17,7 +18,7 @@ from .models import (
     UserPreference,
     UserSubject,
 )
-from .planner import replace_plan_sessions
+from .planner import build_plan_sessions_for_date, replace_plan_sessions
 from .schemas import StudyPlanBundleOut, StudyPlanOut, StudySessionOut, UserDataIncoming, UserDataOutgoing
 from .security import hash_password
 
@@ -101,16 +102,35 @@ def ensure_study_plan(db: Session, user_id: UUID, plan_date: date) -> StudyPlan:
 def rebuild_study_plan(db: Session, user: User, plan_date: date) -> StudyPlanBundleOut:
     plan = ensure_study_plan(db, user.id, plan_date)
     tasks = db.scalars(select(Task).where(Task.user_id == user.id).order_by(Task.created_at.desc())).all()
-    replace_plan_sessions(plan, tasks)
+    availability_windows = db.scalars(
+        select(StudyAvailability).where(StudyAvailability.user_id == user.id)
+    ).all()
+
+    # Always remove old sessions first so refreshes cannot duplicate entries.
+    existing_session_ids = [session.id for session in plan.sessions]
+    if existing_session_ids:
+        db.query(SessionTask).filter(SessionTask.study_session_id.in_(existing_session_ids)).delete(
+            synchronize_session=False
+        )
+        db.query(StudySession).filter(StudySession.id.in_(existing_session_ids)).delete(
+            synchronize_session=False
+        )
+        db.flush()
+        db.refresh(plan)
+
+    planned_sessions = build_plan_sessions_for_date(tasks, plan_date, availability_windows if availability_windows else None)
+    replace_plan_sessions(plan, planned_sessions)
     db.flush()
 
     sessions: list[StudySessionOut] = []
-    for session in plan.sessions:
+    for index, session in enumerate(plan.sessions):
         task_link = session.task_links[0] if session.task_links else None
+        start_minute = planned_sessions[index].start_minute_of_day if index < len(planned_sessions) else 9 * 60
         sessions.append(
             StudySessionOut(
                 id=session.id,
                 study_plan_id=session.study_plan_id,
+                start_minute_of_day=start_minute,
                 planned_duration_minutes=session.planned_duration_minutes,
                 status=session.status,
                 task_id=task_link.task_id if task_link else None,

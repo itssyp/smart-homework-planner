@@ -18,7 +18,6 @@
     "registerError": "Error during registration",
     "registering": "Registering...",
     "genericError": "An error occurred. Please try again.",
-    "devHint": "No backend? Use {{user}} / {{pass}} to sign in locally.",
     "toast": {
       "loginFailed": "Login failed. Please check your credentials and try again.",
       "registerSuccess": "Registration successful. Please log in.",
@@ -69,6 +68,7 @@
       "greetingAfternoon": "Good afternoon",
       "greetingEvening": "Good evening",
       "newTask": "New task",
+      "studyAvailability": "Study availability",
       "startSession": "Start session",
       "statOpenTasks": "Open tasks",
       "statOpenTasksHint": "Not completed yet",
@@ -77,7 +77,7 @@
       "statPlanBlocks": "Plan blocks today",
       "statPlanBlocksHint": "Auto-generated",
       "studyPlanTitle": "Today's study plan",
-      "studyPlanSubtitle": "Sorted by deadline and priority, chunked into focused sessions (mock).",
+      "studyPlanSubtitle": "Sorted by deadline and priority, placed into your available study time.",
       "noSessionsTitle": "No sessions scheduled",
       "noSessionsDescription": "Add open tasks with estimates to build your day.",
       "createTask": "Create task",
@@ -86,6 +86,22 @@
       "nothingUrgentDescription": "High-impact work will surface here.",
       "todayFocus": "Today focus",
       "caughtUp": "You're caught up — add a task or take a break."
+    },
+    "availability": {
+      "title": "Set study availability",
+      "subtitle": "Choose when you're available to study. Daily plan blocks are generated only inside these windows.",
+      "start": "Start",
+      "end": "End",
+      "save": "Save availability",
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      }
     },
     "tasks": {
       "eyebrow": "Tasks",
@@ -104,7 +120,8 @@
       "priorityHigh": "High",
       "emptyTitle": "No tasks yet",
       "emptyDescription": "Create your first task to see it here with urgency cues.",
-      "createTask": "Create task"
+      "createTask": "Create task",
+      "deleteConfirm": "Delete task \"{{title}}\"?"
     },
     "subjects": {
       "eyebrow": "Courses",
@@ -123,14 +140,47 @@
       "tasksTitle": "Tasks in this subject",
       "emptyTitle": "No tasks yet",
       "emptyDescription": "Create a task and assign this subject to see it here.",
-      "goToTasks": "Go to tasks"
+      "goToTasks": "Go to tasks",
+      "deleteSubject": "Delete subject",
+      "deleteConfirmWithTasks": "Delete subject \"{{subject}}\"? This will also delete {{count}} related task(s)."
     },
     "studyPlan": {
       "eyebrow": "Schedule",
       "title": "Study plan",
       "subtitle": "Full-day timeline · {{date}}",
+      "weeklyTitle": "Weekly study plan",
+      "weeklySubtitle": "Your scheduled study blocks for this week.",
+      "emptyDay": "No blocks scheduled for this day.",
       "emptyTitle": "No blocks yet",
       "emptyDescription": "Tasks with estimates generate time blocks automatically."
+    },
+    "session": {
+      "eyebrow": "Active session",
+      "subtitle": "Track your current focus block and resume anytime.",
+      "exceedsDaily": "This task is estimated until {{time}}, which exceeds your daily study plan.",
+      "elapsed": "Elapsed",
+      "remaining": "Remaining",
+      "pause": "Pause",
+      "resume": "Resume",
+      "complete": "Mark complete",
+      "endEarly": "End session",
+      "emptyTitle": "No active session",
+      "emptyDescription": "Start a session from the dashboard to begin timing.",
+      "backToDashboard": "Back to dashboard",
+      "notifications": "Study reminders",
+      "upToDate": "You are up to date."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "itemTitle": "Reminder",
+      "empty": "No reminders right now.",
+      "activeSession": "Active study session: {{title}}",
+      "sessionReminderTitle": "Study session reminder",
+      "sessionReminderBody": "\"{{title}}\" still has {{remaining}} minutes remaining.",
+      "overdueTitle": "Overdue task",
+      "overdueBody": "\"{{title}}\" is overdue.",
+      "dueSoonTitle": "Due soon",
+      "dueSoonBody": "\"{{title}}\" is due by {{time}}."
     },
     "analytics": {
       "eyebrow": "Workload",
@@ -147,7 +197,8 @@
       "fieldPriority": "Priority",
       "fieldEstimatedTime": "Estimated time (minutes)",
       "fieldSubject": "Subject",
-      "subjectNone": "None"
+      "subjectNone": "None",
+      "subjectPlaceholder": "Select a subject"
     },
     "subjectModal": {
       "title": "New subject",
@@ -164,7 +215,10 @@
       "high": "High"
     },
     "taskCard": {
-      "markCompleteAria": "Mark complete"
+      "markCompleteAria": "Mark complete",
+      "deleteAria": "Delete task",
+      "moreActionsAria": "Task actions",
+      "delete": "Delete task"
     },
     "deadline": {
       "overdue": "Overdue",

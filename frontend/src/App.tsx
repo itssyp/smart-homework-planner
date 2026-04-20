@@ -1,4 +1,6 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { ThemeProviderWrapper } from "./context/ThemeProvider";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AuthProvider from "./authentication/AuthProvider";
@@ -13,21 +15,33 @@ import TasksPage from "./pages/TasksPage";
 import SubjectsPage from "./pages/SubjectsPage";
 import SubjectDetailPage from "./pages/SubjectDetailPage";
 import StudyPlanPage from "./pages/StudyPlanPage";
+import StudySessionPage from "./pages/StudySessionPage";
 
 const queryClient = new QueryClient();
+const queryPersister = createSyncStoragePersister({
+  storage: window.localStorage,
+  key: "shp-react-query-cache",
+});
 
 const ProtectedDashboard = withAuthRedirect(Dashboard);
 const ProtectedTasks = withAuthRedirect(TasksPage);
 const ProtectedSubjects = withAuthRedirect(SubjectsPage);
 const ProtectedSubjectDetail = withAuthRedirect(SubjectDetailPage);
 const ProtectedStudyPlan = withAuthRedirect(StudyPlanPage);
+const ProtectedStudySession = withAuthRedirect(StudySessionPage);
 
 function App() {
   return (
     <>
       <ThemeProviderWrapper>
         <LanguageProvider>
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{
+            persister: queryPersister,
+            maxAge: 1000 * 60 * 60 * 12,
+          }}
+        >
           <BrowserRouter>
             <AuthProvider>
               <Navigation>
@@ -39,12 +53,13 @@ function App() {
                     <Route path="/subjects" element={<ProtectedSubjects />} />
                     <Route path="/subjects/:subjectId" element={<ProtectedSubjectDetail />} />
                     <Route path="/study-plan" element={<ProtectedStudyPlan />} />
+                    <Route path="/study-session" element={<ProtectedStudySession />} />
                     <Route path="*" element={<ErrorPage />} />
                 </Routes>
               </Navigation>
             </AuthProvider>
           </BrowserRouter>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
         </LanguageProvider>
       </ThemeProviderWrapper>
     </>

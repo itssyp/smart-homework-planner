@@ -1,4 +1,4 @@
-import type { StudySessionWithTask, Task, TaskPriority } from '../types/planner.types';
+import type { StudyAvailability, StudySessionWithTask, Task, TaskPriority } from '../types/planner.types';
 import { dayjs } from '../utils/dayjsSetup';
 
 const PRIORITY_ORDER: Record<TaskPriority, number> = { high: 3, medium: 2, low: 1 };
@@ -75,6 +75,7 @@ export function generateDailyPlan(
       sessions.push({
         id: `sess-${planId}-${sessionIndex}`,
         study_plan_id: planId,
+        start_minute_of_day: 9 * 60 + used,
         planned_duration_minutes: duration,
         status: 'not_started',
         task_id: task.id,
@@ -89,12 +90,33 @@ export function generateDailyPlan(
 
 export type ScheduledBlock = StudySessionWithTask & { start_minute_of_day: number };
 
-/** Stacks sessions from `startHour` (default 9:00) for schedule UI. */
+/**
+ * Returns the first availability window start (minutes from midnight) for the given date.
+ * Falls back to `9:00` when no availability is configured for that weekday.
+ */
+export function getStartMinuteFromAvailability(planDate: string, availability: StudyAvailability[]): number {
+  const jsDay = new Date(`${planDate}T00:00:00`).getDay(); // Sun=0..Sat=6
+  const dayOfWeek = (jsDay + 6) % 7; // Mon=0..Sun=6 (backend convention)
+  const todayWindows = availability
+    .filter((slot) => slot.day_of_week === dayOfWeek)
+    .sort((a, b) => a.start_time.localeCompare(b.start_time));
+
+  const first = todayWindows[0];
+  if (!first) return 9 * 60;
+
+  const [hourRaw, minuteRaw] = first.start_time.split(':');
+  const hour = Number(hourRaw);
+  const minute = Number(minuteRaw);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return 9 * 60;
+  return hour * 60 + minute;
+}
+
+/** Stacks sessions from `startMinuteOfDay` (default 9:00) for schedule UI. */
 export function scheduleSessionsForDay(
   sessions: StudySessionWithTask[],
-  startHour = 9,
+  startMinuteOfDay = 9 * 60,
 ): ScheduledBlock[] {
-  let cursor = startHour * 60;
+  let cursor = startMinuteOfDay;
   return sessions.map((s) => {
     const block: ScheduledBlock = { ...s, start_minute_of_day: cursor };
     cursor += s.planned_duration_minutes;

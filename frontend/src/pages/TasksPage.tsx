@@ -15,7 +15,12 @@ import { EmptyState } from '../components/planner/EmptyState';
 import { PlannerPageHeader } from '../components/planner/PlannerPageHeader';
 import { TaskListSkeleton } from '../components/planner/PlannerSkeletons';
 import { TaskCard } from '../components/planner/TaskCard';
-import { useSubjectsQuery, useTasksQuery, useUpdateTaskMutation } from '../query/planner.query';
+import {
+  useDeleteTaskMutation,
+  useSubjectsQuery,
+  useTasksQuery,
+  useUpdateTaskMutation,
+} from '../query/planner.query';
 import { usePlannerUiStore } from '../store/plannerUiStore';
 import type { Task, TaskPriority, TaskStatus } from '../types/planner.types';
 import { dayjs } from '../utils/dayjsSetup';
@@ -29,6 +34,7 @@ function TasksPage() {
   const tasksQuery = useTasksQuery();
   const subjectsQuery = useSubjectsQuery();
   const updateTask = useUpdateTaskMutation();
+  const deleteTask = useDeleteTaskMutation();
 
   const subjectsById = useMemo(
     () => new Map((subjectsQuery.data ?? []).map((s) => [s.id, s])),
@@ -52,6 +58,12 @@ function TasksPage() {
 
   const handleToggle = (task: Task, done: boolean) => {
     updateTask.mutate({ id: task.id, patch: { status: done ? 'done' : 'not_started' } });
+  };
+
+  const handleDelete = (task: Task) => {
+    const ok = window.confirm(t('planner.tasks.deleteConfirm', { title: task.title }));
+    if (!ok) return;
+    deleteTask.mutate(task.id);
   };
 
   if (tasksQuery.isLoading) {
@@ -120,6 +132,7 @@ function TasksPage() {
               task={taskItem}
               subject={taskItem.subject_id ? subjectsById.get(taskItem.subject_id) : undefined}
               onToggleDone={handleToggle}
+              onDelete={handleDelete}
             />
           ))}
         </Stack>

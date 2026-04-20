@@ -4,9 +4,11 @@ import {
   CardContent,
   Checkbox,
   Chip,
+  IconButton,
   LinearProgress,
   Typography,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
 import type { Subject, Task } from '../../types/planner.types';
 import { formatDeadlineCountdown, getDeadlineUrgency, urgencyColor } from '../../utils/deadlineUrgency';
@@ -17,10 +19,11 @@ interface TaskCardProps {
   task: Task;
   subject?: Subject;
   onToggleDone?: (task: Task, done: boolean) => void;
+  onDelete?: (task: Task) => void;
   dense?: boolean;
 }
 
-export function TaskCard({ task, subject, onToggleDone, dense }: TaskCardProps) {
+export function TaskCard({ task, subject, onToggleDone, onDelete, dense }: TaskCardProps) {
   const { t } = useTranslation();
   const urgency = getDeadlineUrgency(task.deadline);
   const countdown = formatDeadlineCountdown(task.deadline);
@@ -88,6 +91,17 @@ export function TaskCard({ task, subject, onToggleDone, dense }: TaskCardProps) 
                   color={urgencyColor(urgency)}
                   variant={urgency === 'ok' ? 'outlined' : 'filled'}
                 />
+              )}
+              {onDelete && (
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => onDelete(task)}
+                  aria-label={t('planner.taskCard.deleteAria')}
+                  sx={{ ml: 'auto' }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               )}
             </Box>
             {task.description && !dense && (

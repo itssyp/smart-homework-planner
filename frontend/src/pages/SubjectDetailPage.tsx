@@ -1,22 +1,33 @@
 import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { TaskCard } from '../components/planner/TaskCard';
 import { TaskListSkeleton } from '../components/planner/PlannerSkeletons';
 import { SubjectIcon } from '../components/planner/subjectIcon';
 import { EmptyState } from '../components/planner/EmptyState';
-import { useSubjectsQuery, useSubjectQuery, useTasksQuery, useUpdateTaskMutation } from '../query/planner.query';
+import {
+  useDeleteSubjectMutation,
+  useDeleteTaskMutation,
+  useSubjectsQuery,
+  useSubjectQuery,
+  useTasksQuery,
+  useUpdateTaskMutation,
+} from '../query/planner.query';
 import type { Task } from '../types/planner.types';
 
 function SubjectDetailPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { subjectId } = useParams<{ subjectId: string }>();
   const subjectQuery = useSubjectQuery(subjectId);
   const tasksQuery = useTasksQuery();
   const subjectsQuery = useSubjectsQuery();
   const updateTask = useUpdateTaskMutation();
+  const deleteTask = useDeleteTaskMutation();
+  const deleteSubject = useDeleteSubjectMutation();
 
   const subjectsById = useMemo(
     () => new Map((subjectsQuery.data ?? []).map((s) => [s.id, s])),
@@ -30,6 +41,12 @@ function SubjectDetailPage() {
 
   const handleToggle = (task: Task, done: boolean) => {
     updateTask.mutate({ id: task.id, patch: { status: done ? 'done' : 'not_started' } });
+  };
+
+  const handleDeleteTask = (task: Task) => {
+    const ok = window.confirm(t('planner.tasks.deleteConfirm', { title: task.title }));
+    if (!ok) return;
+    deleteTask.mutate(task.id);
   };
 
   if (subjectQuery.isLoading || tasksQuery.isLoading) {
@@ -48,12 +65,26 @@ function SubjectDetailPage() {
   }
 
   const s = subjectQuery.data;
+  const handleDeleteSubject = () => {
+    const ok = window.confirm(
+      t('planner.subjectDetail.deleteConfirmWithTasks', { subject: s.name, count: subjectTasks.length }),
+    );
+    if (!ok) return;
+    deleteSubject.mutate(s.id, {
+      onSuccess: () => navigate('/subjects'),
+    });
+  };
 
   return (
     <Box sx={{ maxWidth: 1160, mx: 'auto' }}>
-      <Button component={Link} to="/subjects" startIcon={<ArrowBackIcon />} sx={{ mb: 2 }}>
-        {t('planner.subjectDetail.back')}
-      </Button>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+        <Button component={Link} to="/subjects" startIcon={<ArrowBackIcon />}>
+          {t('planner.subjectDetail.back')}
+        </Button>
+        <Button color="error" variant="outlined" startIcon={<DeleteIcon />} onClick={handleDeleteSubject}>
+          {t('planner.subjectDetail.deleteSubject')}
+        </Button>
+      </Box>
 
       <Card
         elevation={0}
@@ -108,6 +139,7 @@ function SubjectDetailPage() {
               task={taskItem}
               subject={taskItem.subject_id ? subjectsById.get(taskItem.subject_id) : undefined}
               onToggleDone={handleToggle}
+              onDelete={handleDeleteTask}
             />
           ))}
         </Stack>

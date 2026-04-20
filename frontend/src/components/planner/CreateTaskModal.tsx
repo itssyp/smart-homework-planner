@@ -18,13 +18,15 @@ import { useCreateTaskMutation, useSubjectsQuery } from '../../query/planner.que
 import type { CreateTaskInput, TaskPriority } from '../../types/planner.types';
 import { usePlannerUiStore } from '../../store/plannerUiStore';
 
-const defaultValues: CreateTaskInput = {
+type CreateTaskFormValues = Omit<CreateTaskInput, 'subject_id'> & { subject_id: string };
+
+const defaultValues: CreateTaskFormValues = {
   title: '',
   description: '',
   deadline: '',
   priority: 'medium',
   estimated_time_minutes: 60,
-  subject_id: undefined,
+  subject_id: '',
 };
 
 export function CreateTaskModal() {
@@ -34,7 +36,7 @@ export function CreateTaskModal() {
   const { data: subjects = [] } = useSubjectsQuery();
   const mutation = useCreateTaskMutation();
 
-  const { control, handleSubmit, reset } = useForm<CreateTaskInput>({
+  const { control, handleSubmit, reset } = useForm<CreateTaskFormValues>({
     defaultValues,
   });
 
@@ -42,13 +44,13 @@ export function CreateTaskModal() {
     if (!open) reset(defaultValues);
   }, [open, reset]);
 
-  const onSubmit = (data: CreateTaskInput) => {
+  const onSubmit = (data: CreateTaskFormValues) => {
     mutation.mutate(
       {
         ...data,
         description: data.description || undefined,
         deadline: data.deadline || undefined,
-        subject_id: data.subject_id || undefined,
+        subject_id: data.subject_id,
         estimated_time_minutes: data.estimated_time_minutes
           ? Number(data.estimated_time_minutes)
           : undefined,
@@ -129,16 +131,19 @@ export function CreateTaskModal() {
             <Controller
               name="subject_id"
               control={control}
+              rules={{ required: true }}
               render={({ field }) => (
-                <FormControl fullWidth>
+                <FormControl fullWidth required>
                   <InputLabel id="subject-label">{t('planner.taskModal.fieldSubject')}</InputLabel>
                   <Select
                     labelId="subject-label"
                     label={t('planner.taskModal.fieldSubject')}
                     value={field.value ?? ''}
-                    onChange={(e) => field.onChange(e.target.value || undefined)}
+                    onChange={(e) => field.onChange(e.target.value)}
                   >
-                    <MenuItem value="">{t('planner.taskModal.subjectNone')}</MenuItem>
+                    <MenuItem value="" disabled>
+                      {t('planner.taskModal.subjectPlaceholder')}
+                    </MenuItem>
                     {subjects.map((s) => (
                       <MenuItem key={s.id} value={s.id}>
                         {s.name}

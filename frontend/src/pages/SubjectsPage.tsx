@@ -1,9 +1,11 @@
 import { Box, Button, Card, CardActionArea, CardContent, Stack, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useSubjectsQuery } from '../query/planner.query';
+import { useDeleteSubjectMutation, useSubjectsQuery, useTasksQuery } from '../query/planner.query';
 import { SubjectIcon } from '../components/planner/subjectIcon';
 import { TaskListSkeleton } from '../components/planner/PlannerSkeletons';
 import { PlannerPageHeader } from '../components/planner/PlannerPageHeader';
@@ -14,6 +16,17 @@ function SubjectsPage() {
   const { t } = useTranslation();
   const setCreateSubjectOpen = usePlannerUiStore((s) => s.setCreateSubjectOpen);
   const { data: subjects = [], isLoading } = useSubjectsQuery();
+  const { data: tasks = [] } = useTasksQuery();
+  const deleteSubject = useDeleteSubjectMutation();
+
+  const handleDeleteSubject = (subjectId: string, subjectName: string) => {
+    const relatedTasks = tasks.filter((task) => task.subject_id === subjectId).length;
+    const ok = window.confirm(
+      t('planner.subjectDetail.deleteConfirmWithTasks', { subject: subjectName, count: relatedTasks }),
+    );
+    if (!ok) return;
+    deleteSubject.mutate(subjectId);
+  };
 
   if (isLoading) {
     return <TaskListSkeleton rows={3} />;
@@ -64,6 +77,18 @@ function SubjectsPage() {
                     transition: 'opacity 0.2s, transform 0.2s',
                   }}
                 />
+                <IconButton
+                  color="error"
+                  size="small"
+                  aria-label={t('planner.subjectDetail.deleteSubject')}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleDeleteSubject(s.id, s.name);
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               </CardContent>
             </CardActionArea>
           </Card>
