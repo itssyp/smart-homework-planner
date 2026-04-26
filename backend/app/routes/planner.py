@@ -22,6 +22,7 @@ from ..services import get_user_subjects_stmt, rebuild_study_plan, validate_subj
 
 
 router = APIRouter(tags=["planner"])
+MISSING_AVAILABILITY_NOTIFICATION = "Set study availability to generate your study plan."
 
 def parse_time(value: str) -> dt_time:
     try:
@@ -72,6 +73,39 @@ def _sync_overdue_notifications(current_user: CurrentUser, db: DbSession) -> Non
     if new_rows:
         db.add_all(new_rows)
         db.flush()
+
+
+def _sync_availability_notification(current_user: CurrentUser, db: DbSession) -> None:
+    availability_count = db.scalar(
+        select(StudyAvailability.id).where(StudyAvailability.user_id == current_user.id).limit(1)
+    )
+    missing_availability_stmt = select(Notification).where(
+        Notification.user_id == current_user.id,
+        Notification.task_id.is_(None),
+        Notification.message == MISSING_AVAILABILITY_NOTIFICATION,
+    )
+
+    if availability_count:
+        stale_rows = db.scalars(missing_availability_stmt).all()
+        for row in stale_rows:
+            db.delete(row)
+        return
+
+    existing = db.scalar(missing_availability_stmt.limit(1))
+    if existing:
+        if existing.is_read:
+            existing.is_read = False
+        return
+
+    db.add(
+        Notification(
+            user_id=current_user.id,
+            task_id=None,
+            message=MISSING_AVAILABILITY_NOTIFICATION,
+            is_read=False,
+        )
+    )
+    db.flush()
 
 
 @router.get("/tasks", response_model=list[TaskOut])
@@ -218,6 +252,7 @@ def replace_study_availability(
 @router.get("/notifications", response_model=list[NotificationOut])
 def get_notifications(current_user: CurrentUser, db: DbSession) -> list[Notification]:
     _sync_overdue_notifications(current_user, db)
+    _sync_availability_notification(current_user, db)
     rows = db.scalars(
         select(Notification)
         .where(Notification.user_id == current_user.id, Notification.is_read.is_(False))

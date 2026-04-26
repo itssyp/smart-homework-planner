@@ -14,9 +14,10 @@ import {
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
-import { useCreateTaskMutation, useSubjectsQuery } from '../../query/planner.query';
-import type { CreateTaskInput, TaskPriority } from '../../types/planner.types';
+import { useCreateTaskMutation, useSubjectsQuery, useUpdateTaskMutation } from '../../query/planner.query';
+import type { CreateTaskInput, Task, TaskPriority } from '../../types/planner.types';
 import { usePlannerUiStore } from '../../store/plannerUiStore';
+import { dayjs } from '../../utils/dayjsSetup';
 
 type CreateTaskFormValues = Omit<CreateTaskInput, 'subject_id'> & { subject_id: string };
 
@@ -29,43 +30,86 @@ const defaultValues: CreateTaskFormValues = {
   subject_id: '',
 };
 
-export function CreateTaskModal() {
+interface CreateTaskModalProps {
+  open?: boolean;
+  onClose?: () => void;
+  taskToEdit?: Task | null;
+}
+
+function toDateTimeLocal(value: string | undefined) {
+  if (!value) return '';
+  const parsed = dayjs(value);
+  return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm') : '';
+}
+
+function toFormValues(task?: Task | null): CreateTaskFormValues {
+  if (!task) return defaultValues;
+  return {
+    title: task.title,
+    description: task.description ?? '',
+    deadline: toDateTimeLocal(task.deadline),
+    priority: task.priority,
+    estimated_time_minutes: task.estimated_time_minutes ?? 60,
+    subject_id: task.subject_id ?? '',
+  };
+}
+
+export function CreateTaskModal({ open: openProp, onClose, taskToEdit }: CreateTaskModalProps) {
   const { t } = useTranslation();
-  const open = usePlannerUiStore((s) => s.createTaskOpen);
+  const createOpen = usePlannerUiStore((s) => s.createTaskOpen);
   const setOpen = usePlannerUiStore((s) => s.setCreateTaskOpen);
+  const open = openProp ?? createOpen;
   const { data: subjects = [] } = useSubjectsQuery();
-  const mutation = useCreateTaskMutation();
+  const createMutation = useCreateTaskMutation();
+  const updateMutation = useUpdateTaskMutation();
+  const isEditMode = Boolean(taskToEdit);
+  const closeModal = onClose ?? (() => setOpen(false));
 
   const { control, handleSubmit, reset } = useForm<CreateTaskFormValues>({
-    defaultValues,
+    defaultValues: toFormValues(taskToEdit),
   });
 
   useEffect(() => {
-    if (!open) reset(defaultValues);
-  }, [open, reset]);
+    if (!open) {
+      reset(defaultValues);
+      return;
+    }
+    reset(toFormValues(taskToEdit));
+  }, [open, reset, taskToEdit]);
 
   const onSubmit = (data: CreateTaskFormValues) => {
-    mutation.mutate(
-      {
-        ...data,
-        description: data.description || undefined,
-        deadline: data.deadline || undefined,
-        subject_id: data.subject_id,
-        estimated_time_minutes: data.estimated_time_minutes
-          ? Number(data.estimated_time_minutes)
-          : undefined,
-      },
-      {
-        onSuccess: () => {
-          setOpen(false);
+    const payload = {
+      ...data,
+      description: data.description || undefined,
+      deadline: data.deadline || undefined,
+      subject_id: data.subject_id,
+      estimated_time_minutes: data.estimated_time_minutes
+        ? Number(data.estimated_time_minutes)
+        : undefined,
+    };
+
+    if (taskToEdit) {
+      updateMutation.mutate(
+        { id: taskToEdit.id, patch: payload },
+        {
+          onSuccess: () => {
+            closeModal();
+          },
         },
+      );
+      return;
+    }
+
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        closeModal();
       },
-    );
+    });
   };
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
-      <DialogTitle>{t('planner.taskModal.title')}</DialogTitle>
+    <Dialog open={open} onClose={closeModal} fullWidth maxWidth="sm">
+      <DialogTitle>{isEditMode ? t('planner.taskModal.editTitle') : t('planner.taskModal.title')}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 0.5 }}>
@@ -156,9 +200,15 @@ export function CreateTaskModal() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setOpen(false)}>{t('planner.common.cancel')}</Button>
-          <Button type="submit" variant="contained" disabled={mutation.isPending}>
-            {mutation.isPending ? t('planner.common.creating') : t('planner.common.create')}
+          <Button onClick={closeModal}>{t('planner.common.cancel')}</Button>
+          <Button type="submit" variant="contained" disabled={createMutation.isPending || updateMutation.isPending}>
+            {createMutation.isPending || updateMutation.isPending
+              ? isEditMode
+                ? t('planner.common.saving')
+                : t('planner.common.creating')
+              : isEditMode
+                ? t('planner.common.save')
+                : t('planner.common.create')}
           </Button>
         </DialogActions>
       </form>

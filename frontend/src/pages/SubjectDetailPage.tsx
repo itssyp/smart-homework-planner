@@ -49,6 +49,10 @@ function SubjectDetailPage() {
     deleteTask.mutate(task.id);
   };
 
+  const handleOpenTask = (task: Task) => {
+    navigate(`/tasks/${task.id}`);
+  };
+
   if (subjectQuery.isLoading || tasksQuery.isLoading) {
     return <TaskListSkeleton rows={4} />;
   }
@@ -140,6 +144,7 @@ function SubjectDetailPage() {
               subject={taskItem.subject_id ? subjectsById.get(taskItem.subject_id) : undefined}
               onToggleDone={handleToggle}
               onDelete={handleDeleteTask}
+              onOpen={handleOpenTask}
             />
           ))}
         </Stack>

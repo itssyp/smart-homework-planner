@@ -8,7 +8,8 @@ import {
   Stack,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CreateTaskModal } from '../components/planner/CreateTaskModal';
 import { EmptyState } from '../components/planner/EmptyState';
@@ -27,9 +28,11 @@ import { dayjs } from '../utils/dayjsSetup';
 
 function TasksPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const setCreateOpen = usePlannerUiStore((s) => s.setCreateTaskOpen);
   const filters = usePlannerUiStore((s) => s.taskFilters);
   const setFilters = usePlannerUiStore((s) => s.setTaskFilters);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
   const tasksQuery = useTasksQuery();
   const subjectsQuery = useSubjectsQuery();
@@ -64,6 +67,10 @@ function TasksPage() {
     const ok = window.confirm(t('planner.tasks.deleteConfirm', { title: task.title }));
     if (!ok) return;
     deleteTask.mutate(task.id);
+  };
+
+  const handleOpenTask = (task: Task) => {
+    navigate(`/tasks/${task.id}`);
   };
 
   if (tasksQuery.isLoading) {
@@ -133,11 +140,18 @@ function TasksPage() {
               subject={taskItem.subject_id ? subjectsById.get(taskItem.subject_id) : undefined}
               onToggleDone={handleToggle}
               onDelete={handleDelete}
+              onEdit={setTaskToEdit}
+              onOpen={handleOpenTask}
             />
           ))}
         </Stack>
       )}
       <CreateTaskModal />
+      <CreateTaskModal
+        open={Boolean(taskToEdit)}
+        taskToEdit={taskToEdit}
+        onClose={() => setTaskToEdit(null)}
+      />
     </Box>
   );
 }

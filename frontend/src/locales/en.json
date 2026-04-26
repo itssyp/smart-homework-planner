@@ -55,6 +55,7 @@
     "common": {
       "cancel": "Cancel",
       "create": "Create",
+      "save": "Save",
       "saving": "Saving…",
       "creating": "Creating…",
       "minutes": "min",
@@ -174,6 +175,7 @@
       "title": "Notifications",
       "itemTitle": "Reminder",
       "empty": "No reminders right now.",
+      "missingAvailabilityBody": "Set study availability to generate your study plan.",
       "activeSession": "Active study session: {{title}}",
       "sessionReminderTitle": "Study session reminder",
       "sessionReminderBody": "\"{{title}}\" still has {{remaining}} minutes remaining.",
@@ -191,6 +193,7 @@
     },
     "taskModal": {
       "title": "New task",
+      "editTitle": "Edit task",
       "fieldTitle": "Title",
       "fieldDescription": "Description",
       "fieldDeadline": "Deadline",
@@ -199,6 +202,16 @@
       "fieldSubject": "Subject",
       "subjectNone": "None",
       "subjectPlaceholder": "Select a subject"
+    },
+    "taskDetail": {
+      "back": "Back to tasks",
+      "edit": "Edit task",
+      "delete": "Delete task",
+      "description": "Description",
+      "noDescription": "No description",
+      "noSubject": "No subject",
+      "notFoundTitle": "Task not found",
+      "notFoundDescription": "It may have been deleted or the link is invalid."
     },
     "subjectModal": {
       "title": "New subject",
@@ -217,8 +230,10 @@
     "taskCard": {
       "markCompleteAria": "Mark complete",
       "deleteAria": "Delete task",
+      "editAria": "Edit task",
       "moreActionsAria": "Task actions",
-      "delete": "Delete task"
+      "delete": "Delete task",
+      "edit": "Edit task"
     },
     "deadline": {
       "overdue": "Overdue",

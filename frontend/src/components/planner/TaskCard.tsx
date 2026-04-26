@@ -6,9 +6,11 @@ import {
   Chip,
   IconButton,
   LinearProgress,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { useTranslation } from 'react-i18next';
 import type { Subject, Task } from '../../types/planner.types';
 import { formatDeadlineCountdown, getDeadlineUrgency, urgencyColor } from '../../utils/deadlineUrgency';
@@ -20,10 +22,12 @@ interface TaskCardProps {
   subject?: Subject;
   onToggleDone?: (task: Task, done: boolean) => void;
   onDelete?: (task: Task) => void;
+  onEdit?: (task: Task) => void;
+  onOpen?: (task: Task) => void;
   dense?: boolean;
 }
 
-export function TaskCard({ task, subject, onToggleDone, onDelete, dense }: TaskCardProps) {
+export function TaskCard({ task, subject, onToggleDone, onDelete, onEdit, onOpen, dense }: TaskCardProps) {
   const { t } = useTranslation();
   const urgency = getDeadlineUrgency(task.deadline);
   const countdown = formatDeadlineCountdown(task.deadline);
@@ -39,6 +43,7 @@ export function TaskCard({ task, subject, onToggleDone, onDelete, dense }: TaskC
         borderLeftColor: hot ? 'error.main' : 'primary.light',
         opacity: done ? 0.75 : 1,
         transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        cursor: onOpen ? 'pointer' : 'default',
         '&:hover': {
           boxShadow: (theme) =>
             theme.palette.mode === 'dark'
@@ -46,12 +51,14 @@ export function TaskCard({ task, subject, onToggleDone, onDelete, dense }: TaskC
               : '0 12px 40px rgba(108, 93, 211, 0.12)',
         },
       }}
+      onClick={onOpen ? () => onOpen(task) : undefined}
     >
       <CardContent sx={{ py: dense ? 1.5 : 2, '&:last-child': { pb: dense ? 1.5 : 2 } }}>
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5, alignItems: 'flex-start' }}>
           {onToggleDone && (
             <Checkbox
               checked={done}
+              onClick={(e) => e.stopPropagation()}
               onChange={(_, checked) => onToggleDone(task, checked)}
               slotProps={{ input: { 'aria-label': t('planner.taskCard.markCompleteAria') } }}
               color="primary"
@@ -92,20 +99,48 @@ export function TaskCard({ task, subject, onToggleDone, onDelete, dense }: TaskC
                   variant={urgency === 'ok' ? 'outlined' : 'filled'}
                 />
               )}
-              {onDelete && (
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => onDelete(task)}
-                  aria-label={t('planner.taskCard.deleteAria')}
-                  sx={{ ml: 'auto' }}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              )}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}>
+                {onEdit && (
+                  <Tooltip title={t('planner.taskCard.edit')}>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(task);
+                      }}
+                      aria-label={t('planner.taskCard.editAria')}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {onDelete && (
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(task);
+                    }}
+                    aria-label={t('planner.taskCard.deleteAria')}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
             </Box>
             {task.description && !dense && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  mt: 0.5,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 {task.description}
               </Typography>
             )}

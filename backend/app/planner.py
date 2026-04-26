@@ -76,8 +76,7 @@ def get_day_slots(
     availability_windows: list[StudyAvailability] | None = None,
 ) -> list[tuple[int, int]]:
     if not availability_windows:
-        start = 9 * 60
-        return [(start, start + get_available_minutes_for_date(plan_date))]
+        return []
 
     day_windows = sorted(
         (w for w in availability_windows if w.day_of_week == plan_date.weekday()),

@@ -13,6 +13,7 @@ import { SubjectAnalyticsCard } from '../components/planner/SubjectAnalyticsCard
 import { TaskCard } from '../components/planner/TaskCard';
 import { StudyAvailabilityModal } from '../components/planner/StudyAvailabilityModal';
 import {
+  useNotificationsQuery,
   useStudyAvailabilityQuery,
   useStudyPlanQuery,
   useSubjectsQuery,
@@ -44,6 +45,7 @@ function Dashboard() {
   const tasksQuery = useTasksQuery();
   const subjectsQuery = useSubjectsQuery();
   const availabilityQuery = useStudyAvailabilityQuery();
+  const notificationsQuery = useNotificationsQuery();
   const planQuery = useStudyPlanQuery(today);
   const updateTask = useUpdateTaskMutation();
 
@@ -95,6 +97,13 @@ function Dashboard() {
     const estimatedEndLabel = dayjs(`${today}T00:00:00`).add(estimatedEndMinute, 'minute').format('HH:mm');
     return t('planner.session.exceedsDaily', { time: estimatedEndLabel });
   }, [dailyEndMinute, focusTask, scheduled, t, today]);
+  const missingAvailabilityNotification = useMemo(
+    () =>
+      (notificationsQuery.data ?? []).find(
+        (n) => n.task_id == null && n.message === 'Set study availability to generate your study plan.',
+      ),
+    [notificationsQuery.data],
+  );
 
   const urgentOrHigh = useMemo(() => {
     return tasks.filter((task) => {
@@ -223,6 +232,11 @@ function Dashboard() {
       {focusOverflowMessage && (
         <Alert severity="warning" sx={{ mb: 2 }}>
           {focusOverflowMessage}
+        </Alert>
+      )}
+      {missingAvailabilityNotification && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t('planner.notifications.missingAvailabilityBody')}
         </Alert>
       )}
 

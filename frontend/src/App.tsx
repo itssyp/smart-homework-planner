@@ -12,6 +12,7 @@ import Navigation from "./layout/Navigation";
 import withAuthRedirect from "./hoc/withAuthRedirect";
 import Dashboard from "./pages/Dashboard";
 import TasksPage from "./pages/TasksPage";
+import TaskDetailPage from "./pages/TaskDetailPage";
 import SubjectsPage from "./pages/SubjectsPage";
 import SubjectDetailPage from "./pages/SubjectDetailPage";
 import StudyPlanPage from "./pages/StudyPlanPage";
@@ -25,6 +26,7 @@ const queryPersister = createSyncStoragePersister({
 
 const ProtectedDashboard = withAuthRedirect(Dashboard);
 const ProtectedTasks = withAuthRedirect(TasksPage);
+const ProtectedTaskDetail = withAuthRedirect(TaskDetailPage);
 const ProtectedSubjects = withAuthRedirect(SubjectsPage);
 const ProtectedSubjectDetail = withAuthRedirect(SubjectDetailPage);
 const ProtectedStudyPlan = withAuthRedirect(StudyPlanPage);
@@ -50,6 +52,7 @@ function App() {
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/" element={<ProtectedDashboard />} />
                     <Route path="/tasks" element={<ProtectedTasks />} />
+                    <Route path="/tasks/:taskId" element={<ProtectedTaskDetail />} />
                     <Route path="/subjects" element={<ProtectedSubjects />} />
                     <Route path="/subjects/:subjectId" element={<ProtectedSubjectDetail />} />
                     <Route path="/study-plan" element={<ProtectedStudyPlan />} />
