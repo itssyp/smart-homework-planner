@@ -148,8 +148,10 @@ function Dashboard() {
     return <DashboardSkeleton />;
   }
 
-  const displayName = auth.username ?? t('planner.dashboard.guestName');
-  const actionButtonSx = { minHeight: 34, py: 0.5, px: 1.5 };
+  const displayName =
+    auth.username
+      ? auth.username.charAt(0).toUpperCase() + auth.username.slice(1)
+      : t('planner.dashboard.guestName');  const actionButtonSx = { minHeight: 34, py: 0.5, px: 1.5 };
   const hasAnalytics = Boolean(subjectsQuery.data && tasks.length > 0);
 
   return (

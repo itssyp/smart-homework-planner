@@ -4,7 +4,7 @@ This folder contains the SQL scripts necessary to initialize and populate the **
 
 ## 🛠️ Prerequisites
 - **PostgreSQL Version:** 17
-- **Default Port used:** `5433` 
+- **Default Port used:** `5432` 
 
 ## Getting Started
 
@@ -21,10 +21,10 @@ CREATE DATABASE studytracker OWNER trackerdbadmin;
 Run the following command from your terminal (inside the db/ folder) to create all tables, enums, and types:
 
 ```sql
-psql -h localhost -p 5433 -U trackerdbadmin -d studytracker -f planner_schema.sql
+psql -h localhost -p 5432 -U trackerdbadmin -d studytracker -f planner_schema.sql
 ```
 ### 3. Import Seed Data
 Once the tables are created, populate them with the test data:
 ```sql
-psql -h localhost -p 5433 -U trackerdbadmin -d studytracker -f seeds.sql
+psql -h localhost -p 5432 -U trackerdbadmin -d studytracker -f seeds.sql
 ```

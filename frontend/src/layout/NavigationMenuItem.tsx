@@ -1,7 +1,5 @@
 import { Avatar, Box, Menu, MenuItem, Typography, Divider } from '@mui/material';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 interface NavigationMenuItemProps {
@@ -64,20 +62,6 @@ function NavigationMenuItem({ username, anchorEl, handleMenuClose, handleLogout 
         </Typography>
       </Box>
       <Divider />
-      <MenuItem
-        component={Link}
-        to="/settings"
-        sx={{
-          py: 1.5,
-          color: 'text.primary',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-        }}
-      >
-        <SettingsIcon fontSize="small" />
-        {t('menu.settings')}
-      </MenuItem>
       <MenuItem
         onClick={handleLogout}
         sx={{
