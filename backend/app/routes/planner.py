@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from datetime import time as dt_time
 from uuid import UUID
 
@@ -6,10 +6,11 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import delete, select, update
 
 from ..dependencies import CurrentUser, DbSession
-from ..models import Notification, SessionTask, StudyAvailability, Subject, Task, UserSubject
+from ..models import Notification, SessionTask, StudyAvailability, StudyLog, Subject, Task, UserSubject
 from ..schemas import (
     CreateSubjectInput,
     CreateTaskInput,
+    MessageResponse,
     NotificationOut,
     StudyAvailabilityInput,
     StudyAvailabilityOut,
@@ -270,3 +271,26 @@ def mark_notifications_as_read(current_user: CurrentUser, db: DbSession) -> None
         .values(is_read=True)
     )
     db.commit()
+
+
+@router.post("/study-sessions/log", response_model=MessageResponse)
+def log_study_session(current_user: CurrentUser, db: DbSession) -> MessageResponse:
+    today = date.today()
+    existing = db.scalar(select(StudyLog).where(StudyLog.user_id == current_user.id, StudyLog.study_date == today))
+    if not existing:
+        db.add(StudyLog(user_id=current_user.id, study_date=today))
+        
+        yesterday = today - timedelta(days=1)
+        had_yesterday = db.scalar(
+            select(StudyLog).where(StudyLog.user_id == current_user.id, StudyLog.study_date == yesterday)
+        )
+        
+        if had_yesterday:
+            current_user.day_streak += 1
+        else:
+            current_user.day_streak = 1
+            
+        db.commit()
+    
+    return MessageResponse(message="Study session logged successfully.")
+

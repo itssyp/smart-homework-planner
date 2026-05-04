@@ -46,6 +46,7 @@ def user_to_auth_payload(user: User) -> UserDataOutgoing:
         role=prefs.role,
         theme=prefs.theme,
         language=prefs.language,
+        day_streak=user.day_streak,
     )
 
 

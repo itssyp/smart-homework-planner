@@ -37,6 +37,7 @@ class UserDataOutgoing(BaseModel):
     role: str
     theme: str
     language: str
+    day_streak: int
 
     model_config = ConfigDict(from_attributes=True)
 

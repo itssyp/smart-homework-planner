@@ -107,6 +107,8 @@ def _fill_day_sessions(
 
     for task in ordered_tasks:
         task_left = remaining_by_task.get(task.id, 0)
+        if task_left <= 0:
+            continue
         while task_left > 0:
             while slot_index < len(slots) and cursor >= slots[slot_index][1]:
                 slot_index += 1
@@ -168,9 +170,18 @@ def build_plan_sessions_for_date(
 
     current = start_date
     while current <= plan_date:
-        day_sessions = _fill_day_sessions(ordered_tasks, remaining_by_task, current, availability_windows)
+        valid_tasks = [
+            t for t in ordered_tasks
+            if not t.created_at or t.created_at.date() <= current
+        ]
+        
+        day_sessions = _fill_day_sessions(valid_tasks, remaining_by_task, current, availability_windows)
         if current == plan_date:
             return day_sessions
+            
+        if not any(v > 0 for v in remaining_by_task.values()):
+            return []
+            
         current += timedelta(days=1)
     return []
 

@@ -197,3 +197,14 @@ class SessionTask(Base):
 
     study_session: Mapped[StudySession] = relationship(back_populates="task_links")
     task: Mapped[Task] = relationship(back_populates="session_links")
+
+
+class StudyLog(Base):
+    __tablename__ = "study_logs"
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
+    study_date: Mapped[date] = mapped_column(Date, nullable=False)
+
+    user: Mapped[User] = relationship("User", backref="study_logs")
+
