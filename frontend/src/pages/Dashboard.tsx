@@ -25,7 +25,7 @@ import { getDeadlineUrgency } from '../utils/deadlineUrgency';
 import { usePlannerUiStore } from '../store/plannerUiStore';
 import type { Task } from '../types/planner.types';
 import { AuthContext } from '../authentication/AuthContext';
-import { buildActiveSession, clearActiveStudySession, saveActiveStudySession } from '../services/studySession.runtime';
+import { buildActiveSession, clearActiveStudySession, saveActiveStudySession, getActiveStudySession } from '../services/studySession.runtime';
 
 function Dashboard() {
   const { t } = useTranslation();
@@ -137,19 +137,32 @@ function Dashboard() {
       clearActiveStudySession();
       return;
     }
-    if (first?.task_id) {
+
+    // 1. Check if there is ALREADY a session in storage for this task
+    const existingSession = getActiveStudySession();
+    
+    if (existingSession && existingSession.task_id === first.task_id) {
+      // 2. If it exists, just make sure it's set to "running" and keep its elapsed time
+      const resumedSession = { ...existingSession, is_running: true };
+      saveActiveStudySession(resumedSession);
+    } else {
+      // 3. ONLY if it's a different task or no session exists, build a new one
       const firstTask = tasks.find((x) => x.id === first.task_id);
       const runtimeSession = buildActiveSession(first, firstTask);
+      
       if (runtimeSession) {
         saveActiveStudySession(runtimeSession);
       } else {
         clearActiveStudySession();
       }
-      updateTask.mutate({
-        id: first.task_id,
-        patch: { status: 'in_progress' },
-      });
     }
+
+    // Update the DB status
+    updateTask.mutate({
+      id: first.task_id,
+      patch: { status: 'in_progress' },
+    });
+
     navigate('/study-session');
   };
 
