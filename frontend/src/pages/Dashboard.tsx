@@ -256,7 +256,7 @@ function Dashboard() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
           gap: 2,
           mb: 3,
         }}
@@ -268,6 +268,11 @@ function Dashboard() {
           value={scheduled.length}
           hint={t('planner.dashboard.statPlanBlocksHint')}
         />
+        <StatCard
+          label={t('planner.dashboard.statStreak')}
+          value={auth.day_streak ?? 0}
+          hint={t('planner.dashboard.statStreakHint')}
+        />
       </Box>
 
       <Box
@@ -275,125 +280,123 @@ function Dashboard() {
           display: 'grid',
           gridTemplateColumns: focusTask ? { xs: '1fr', lg: 'minmax(0, 1fr) 360px' } : '1fr',
           gap: 3,
-          alignItems: 'start',
+          alignItems: 'stretch',
+          mb: 3,
         }}
       >
-        <Stack spacing={3}>
-          <Card elevation={0}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>
-                {t('planner.dashboard.studyPlanTitle')}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {t('planner.dashboard.studyPlanSubtitle')}
-              </Typography>
-              {scheduled.length === 0 ? (
-                <EmptyState
-                  title={t('planner.dashboard.noSessionsTitle')}
-                  description={t('planner.dashboard.noSessionsDescription')}
-                  action={
-                    <Button startIcon={<AddIcon />} variant="contained" onClick={() => setCreateOpen(true)}>
-                      {t('planner.dashboard.createTask')}
-                    </Button>
-                  }
-                />
-              ) : (
-                <Stack spacing={1}>
-                  {scheduled.map((block) => {
-                    const task = block.task_id ? tasks.find((x) => x.id === block.task_id) : undefined;
-                    const sub = task?.subject_id ? subjectsById.get(task.subject_id) : undefined;
-                    const start = dayjs().startOf('day').add(block.start_minute_of_day, 'minute');
-                    const end = start.add(block.planned_duration_minutes, 'minute');
-                    return (
-                      <Box
-                        key={block.id}
-                        sx={{
-                          display: 'flex',
-                          flexDirection: { xs: 'column', sm: 'row' },
-                          gap: 1,
-                          alignItems: { sm: 'center' },
-                          py: 1.5,
-                          px: 2,
-                          borderRadius: 2,
-                          bgcolor: (theme) =>
-                            theme.palette.mode === 'dark' ? 'rgba(157, 139, 247, 0.08)' : 'rgba(108, 93, 211, 0.06)',
-                          border: '1px solid',
-                          borderColor: 'divider',
-                        }}
-                      >
-                        <Typography variant="body2" sx={{ minWidth: 140, color: 'text.secondary', fontWeight: 600 }}>
-                          {start.format('HH:mm')} – {end.format('HH:mm')}
-                        </Typography>
-                        <Typography variant="body2" sx={{ flex: 1, fontWeight: 700 }}>
-                          {task?.title ?? t('planner.common.session')}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {block.planned_duration_minutes} {t('planner.common.minutes')}
-                          {sub ? ` · ${sub.name}` : ''}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                </Stack>
-              )}
-            </CardContent>
-          </Card>
-
-          <Box>
-            <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
-              {t('planner.dashboard.urgentTitle')}
+        <Card elevation={0} sx={{ height: '100%' }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>
+              {t('planner.dashboard.studyPlanTitle')}
             </Typography>
-            {urgentOrHigh.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {t('planner.dashboard.studyPlanSubtitle')}
+            </Typography>
+            {scheduled.length === 0 ? (
               <EmptyState
-                title={t('planner.dashboard.nothingUrgentTitle')}
-                description={t('planner.dashboard.nothingUrgentDescription')}
+                title={t('planner.dashboard.noSessionsTitle')}
+                description={t('planner.dashboard.noSessionsDescription')}
+                action={
+                  <Button startIcon={<AddIcon />} variant="contained" onClick={() => setCreateOpen(true)}>
+                    {t('planner.dashboard.createTask')}
+                  </Button>
+                }
               />
             ) : (
-              <Stack spacing={1.5}>
-                {urgentOrHigh.slice(0, 6).map((taskItem) => (
-                  <TaskCard
-                    key={taskItem.id}
-                    task={taskItem}
-                    subject={taskItem.subject_id ? subjectsById.get(taskItem.subject_id) : undefined}
-                    onToggleDone={handleToggle}
-                    dense
-                  />
-                ))}
+              <Stack spacing={1}>
+                {scheduled.map((block) => {
+                  const task = block.task_id ? tasks.find((x) => x.id === block.task_id) : undefined;
+                  const sub = task?.subject_id ? subjectsById.get(task.subject_id) : undefined;
+                  const start = dayjs().startOf('day').add(block.start_minute_of_day, 'minute');
+                  const end = start.add(block.planned_duration_minutes, 'minute');
+                  return (
+                    <Box
+                      key={block.id}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        gap: 1,
+                        alignItems: { sm: 'center' },
+                        py: 1.5,
+                        px: 2,
+                        borderRadius: 2,
+                        bgcolor: (theme) =>
+                          theme.palette.mode === 'dark' ? 'rgba(157, 139, 247, 0.08)' : 'rgba(108, 93, 211, 0.06)',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ minWidth: 140, color: 'text.secondary', fontWeight: 600 }}>
+                        {start.format('HH:mm')} – {end.format('HH:mm')}
+                      </Typography>
+                      <Typography variant="body2" sx={{ flex: 1, fontWeight: 700 }}>
+                        {task?.title ?? t('planner.common.session')}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {block.planned_duration_minutes} {t('planner.common.minutes')}
+                        {sub ? ` · ${sub.name}` : ''}
+                      </Typography>
+                    </Box>
+                  );
+                })}
               </Stack>
             )}
-          </Box>
-
-          {hasAnalytics && <SubjectAnalyticsCard tasks={tasks} subjects={subjectsQuery.data!} />}
-        </Stack>
+          </CardContent>
+        </Card>
 
         {focusTask && (
-          <Stack spacing={3}>
-            <Card
-              elevation={0}
-              sx={{
-                background: (theme) =>
-                  theme.palette.mode === 'dark'
-                    ? 'linear-gradient(160deg, rgba(157,139,247,0.15) 0%, rgba(23,25,35,1) 100%)'
-                    : 'linear-gradient(160deg, rgba(108,93,211,0.1) 0%, #FFFFFF 100%)',
-              }}
-            >
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="overline" color="primary" sx={{ fontWeight: 800, letterSpacing: '0.12em' }}>
-                  {t('planner.dashboard.todayFocus')}
-                </Typography>
-                <Box sx={{ mt: 1 }}>
-                  <TaskCard
-                    task={focusTask}
-                    subject={focusTask.subject_id ? subjectsById.get(focusTask.subject_id) : undefined}
-                    onToggleDone={handleToggle}
-                    dense
-                  />
-                </Box>
-              </CardContent>
-            </Card>
+          <Card
+            elevation={0}
+            sx={{
+              height: '100%',
+              background: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? 'linear-gradient(160deg, rgba(157,139,247,0.15) 0%, rgba(23,25,35,1) 100%)'
+                  : 'linear-gradient(160deg, rgba(108,93,211,0.1) 0%, #FFFFFF 100%)',
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="overline" color="primary" sx={{ fontWeight: 800, letterSpacing: '0.12em' }}>
+                {t('planner.dashboard.todayFocus')}
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                <TaskCard
+                  task={focusTask}
+                  subject={focusTask.subject_id ? subjectsById.get(focusTask.subject_id) : undefined}
+                  onToggleDone={handleToggle}
+                  dense
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+      </Box>
+
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 800 }}>
+          {t('planner.dashboard.urgentTitle')}
+        </Typography>
+        {urgentOrHigh.length === 0 ? (
+          <EmptyState
+            title={t('planner.dashboard.nothingUrgentTitle')}
+            description={t('planner.dashboard.nothingUrgentDescription')}
+          />
+        ) : (
+          <Stack spacing={1.5}>
+            {urgentOrHigh.slice(0, 6).map((taskItem) => (
+              <TaskCard
+                key={taskItem.id}
+                task={taskItem}
+                subject={taskItem.subject_id ? subjectsById.get(taskItem.subject_id) : undefined}
+                onToggleDone={handleToggle}
+                dense
+              />
+            ))}
           </Stack>
         )}
       </Box>
+
+      {hasAnalytics && <SubjectAnalyticsCard tasks={tasks} subjects={subjectsQuery.data!} />}
 
       <CreateTaskModal />
       <StudyAvailabilityModal open={availabilityOpen} onClose={() => setAvailabilityOpen(false)} />

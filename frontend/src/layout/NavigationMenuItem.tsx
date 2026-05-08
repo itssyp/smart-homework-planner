@@ -1,15 +1,17 @@
 import { Avatar, Box, Menu, MenuItem, Typography, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 
 interface NavigationMenuItemProps {
   username: string;
   anchorEl: HTMLElement | null;
   handleMenuClose: () => void;
+  handleAccountClick: () => void;
   handleLogout: () => void;
 }
 
-function NavigationMenuItem({ username, anchorEl, handleMenuClose, handleLogout }: NavigationMenuItemProps) {
+function NavigationMenuItem({ username, anchorEl, handleMenuClose, handleAccountClick, handleLogout }: NavigationMenuItemProps) {
   const { t } = useTranslation();
 
   return (
@@ -62,6 +64,19 @@ function NavigationMenuItem({ username, anchorEl, handleMenuClose, handleLogout 
         </Typography>
       </Box>
       <Divider />
+      <MenuItem
+        onClick={handleAccountClick}
+        sx={{
+          py: 1.5,
+          color: 'text.primary',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+        }}
+      >
+        <AccountCircleOutlinedIcon fontSize="small" />
+        {t('user.accountTitle')}
+      </MenuItem>
       <MenuItem
         onClick={handleLogout}
         sx={{

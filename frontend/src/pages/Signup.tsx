@@ -15,12 +15,10 @@ interface SignupFormData {
 function Signup() {
   const { t } = useTranslation();
   const { mutate: registerMutation, isPending, error } = useRegister();
-  const { control, handleSubmit, watch } = useForm<SignupFormData>();
-
-  const password = watch('password');
+  const { control, handleSubmit } = useForm<SignupFormData>();
 
   const onSubmit = (data: SignupFormData) => {
-    const { username } = data;
+    const { username, password } = data;
     registerMutation({ username, password } as UserDataIncoming);
   };
 

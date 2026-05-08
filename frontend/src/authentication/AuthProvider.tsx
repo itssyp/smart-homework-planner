@@ -15,6 +15,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [auth, setAuth] = useState<AuthState>(() => ({
         username: localStorage.getItem('username'),
         theme: localStorage.getItem('theme') || 'light',
+        day_streak: 0,
     }));
 
     const queryClient = useQueryClient();
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setAuth({
                 username: null,
                 theme: 'light',
+                day_streak: 0,
             });
 
             // Clear localStorage
@@ -83,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 id: null,
                 username: null,
                 theme: 'light',
+                day_streak: 0,
             });
             localStorage.removeItem('username');
             localStorage.removeItem('theme');
@@ -99,6 +102,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
+    const updateAuthProfile = (updates: Partial<AuthState>) => {
+        setAuth((prev) => ({ ...prev, ...updates }));
+        if (updates.username) {
+            localStorage.setItem('username', updates.username);
+        }
+        if (updates.theme) {
+            localStorage.setItem('theme', updates.theme);
+        }
+    };
+
     useEffect(() => {
         console.log('Auth state updated:', auth);
     }, [auth]);
@@ -108,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login: handleLogin,
         logout: handleLogout,
         deleteAccount: handleDeleteAccount, // Pass deleteAccount with userId
+        updateAuthProfile,
         isLoading: loginMutation.isPending || logoutMutation.isPending || deleteAccountMutation.isPending,
         error: loginMutation.error || logoutMutation.error || deleteAccountMutation.error ? i18next.t('auth.genericError') : null,
     };

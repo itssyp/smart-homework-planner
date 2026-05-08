@@ -8,6 +8,7 @@ export const AuthContext = createContext<{
     login: (userData: UserDataIncoming) => void;
     logout: () => void;
     deleteAccount: (userId: string) => void;
+    updateAuthProfile: (updates: Partial<AuthState>) => void;
     isLoading: boolean;
     error: string | null;
 }>({
@@ -15,10 +16,12 @@ export const AuthContext = createContext<{
         id: null,
         username: null,
         theme: 'light',
+        day_streak: 0,
     },
     login: () => {},
     logout: () => {},
     deleteAccount: () => {},
+    updateAuthProfile: () => {},
     isLoading: false,
     error: null,
 });

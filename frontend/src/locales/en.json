@@ -32,7 +32,31 @@
   },
   "user": {
     "deleteSuccess": "User deleted successfully.",
-    "deleteError": "Failed to delete user. Please try again."
+    "deleteError": "Failed to delete user. Please try again.",
+    "accountEyebrow": "Profile",
+    "accountTitle": "Account",
+    "accountSubtitle": "Review and update your personal academic details.",
+    "username": "Username",
+    "email": "Email",
+    "dayStreak": "Login streak",
+    "academicLevel": "Academic level",
+    "degree": "Degree",
+    "specialization": "Specialization",
+    "gender": "Gender",
+    "saveProfile": "Save profile",
+    "changePassword": "Change password",
+    "notSet": "Not set",
+    "passwordSectionTitle": "Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "passwordRequired": "Current and new password are required.",
+    "passwordMismatch": "New password and confirmation do not match.",
+    "profileSaveSuccess": "Profile updated successfully.",
+    "profileSaveError": "Could not update profile. Please try again.",
+    "profileLoadError": "Could not load profile data.",
+    "passwordSaveSuccess": "Password updated successfully.",
+    "passwordSaveError": "Could not update password. Please try again."
   },
   "errorPage": {
     "code": "404",
@@ -50,7 +74,8 @@
       "dashboard": "Dashboard",
       "tasks": "Tasks",
       "subjects": "Subjects",
-      "studyPlan": "Study plan"
+      "studyPlan": "Study plan",
+      "account": "Account"
     },
     "common": {
       "cancel": "Cancel",
@@ -77,6 +102,8 @@
       "statDueWeekHint": "Includes overdue",
       "statPlanBlocks": "Plan blocks today",
       "statPlanBlocksHint": "Auto-generated",
+      "statStreak": "Login streak",
+      "statStreakHint": "Consecutive days",
       "studyPlanTitle": "Today's study plan",
       "studyPlanSubtitle": "Sorted by deadline and priority, placed into your available study time.",
       "noSessionsTitle": "No sessions scheduled",
