@@ -31,6 +31,31 @@ class UsernameUpdateRequest(BaseModel):
     newUsername: str = Field(min_length=3, max_length=50)
 
 
+class UserProfileOut(BaseModel):
+    id: UUID
+    username: str
+    email: str
+    day_streak: int
+    academic_level: str | None = None
+    degree: str | None = None
+    specialization: str | None = None
+    gender: str | None = None
+
+
+class UserProfileUpdateInput(BaseModel):
+    username: str = Field(min_length=3, max_length=50)
+    email: str = Field(min_length=3, max_length=255)
+    academic_level: Literal["HS", "BSc", "MSc"] | None = None
+    degree: str | None = Field(default=None, max_length=100)
+    specialization: str | None = Field(default=None, max_length=100)
+    gender: str | None = Field(default=None, max_length=50)
+
+
+class PasswordChangeInput(BaseModel):
+    current_password: str = Field(min_length=1, max_length=255)
+    new_password: str = Field(min_length=4, max_length=255)
+
+
 class UserDataOutgoing(BaseModel):
     id: UUID
     username: str

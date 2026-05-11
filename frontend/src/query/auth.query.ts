@@ -44,11 +44,21 @@ export function useRegister() {
     onError: (error: AxiosError) => {
       console.error('Error registering:', error);
       interface ErrorResponse {
-        message: string;
+        message?: string;
+        detail?: string;
       }
-      if (error.response?.data && typeof (error.response.data as ErrorResponse).message === 'string') {
-        toast.error((error.response.data as ErrorResponse).message);
-      } else if (error.response?.status === 409) {
+      if (error.response?.data) {
+        const responseData = error.response.data as ErrorResponse;
+        if (typeof responseData.message === 'string') {
+          toast.error(responseData.message);
+          return;
+        }
+        if (typeof responseData.detail === 'string') {
+          toast.error(responseData.detail);
+          return;
+        }
+      }
+      if (error.response?.status === 409) {
         toast.error(i18next.t('auth.toast.userExists'));
       } else {
         toast.error(i18next.t('auth.toast.registerFailed'));

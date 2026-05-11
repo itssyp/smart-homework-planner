@@ -4,4 +4,5 @@ export type UserDataOutgoing = {
   role: string;
   theme: string;
   language: string;
+  day_streak: number;
 };

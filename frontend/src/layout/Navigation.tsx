@@ -13,7 +13,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import { Avatar, Badge, Button, IconButton, Popover, Tooltip } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
@@ -31,6 +31,7 @@ interface Props {
 }
 
 function Navigation({ children }: Props) {
+  const navigate = useNavigate();
   const theme = useTheme();
   const { theme: themeName, setTheme } = useThemeContext();
   const { auth, logout } = useContext(AuthContext);
@@ -69,6 +70,11 @@ function Navigation({ children }: Props) {
 
   const handleLogout = () => {
     logout();
+    handleMenuClose();
+  };
+
+  const handleAccountClick = () => {
+    navigate('/account');
     handleMenuClose();
   };
 
@@ -151,6 +157,7 @@ function Navigation({ children }: Props) {
                   username={auth.username}
                   anchorEl={anchorEl}
                   handleMenuClose={handleMenuClose}
+                  handleAccountClick={handleAccountClick}
                   handleLogout={handleLogout}
                 />
               </>

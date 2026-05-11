@@ -17,6 +17,7 @@ import SubjectsPage from "./pages/SubjectsPage";
 import SubjectDetailPage from "./pages/SubjectDetailPage";
 import StudyPlanPage from "./pages/StudyPlanPage";
 import StudySessionPage from "./pages/StudySessionPage";
+import AccountPage from "./pages/AccountPage";
 
 const queryClient = new QueryClient();
 const queryPersister = createSyncStoragePersister({
@@ -31,6 +32,7 @@ const ProtectedSubjects = withAuthRedirect(SubjectsPage);
 const ProtectedSubjectDetail = withAuthRedirect(SubjectDetailPage);
 const ProtectedStudyPlan = withAuthRedirect(StudyPlanPage);
 const ProtectedStudySession = withAuthRedirect(StudySessionPage);
+const ProtectedAccount = withAuthRedirect(AccountPage);
 
 function App() {
   return (
@@ -57,6 +59,7 @@ function App() {
                     <Route path="/subjects/:subjectId" element={<ProtectedSubjectDetail />} />
                     <Route path="/study-plan" element={<ProtectedStudyPlan />} />
                     <Route path="/study-session" element={<ProtectedStudySession />} />
+                    <Route path="/account" element={<ProtectedAccount />} />
                     <Route path="*" element={<ErrorPage />} />
                 </Routes>
               </Navigation>
